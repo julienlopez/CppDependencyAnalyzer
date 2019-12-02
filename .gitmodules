@@ -1,0 +1,9 @@
+[submodule "3rd_party/GSL"]
+	path = 3rd_party/GSL
+	url = https://github.com/Microsoft/GSL
+[submodule "3rd_party/expected"]
+	path = 3rd_party/expected
+	url = https://github.com/TartanLlama/expected
+[submodule "3rd_party/Catch2"]
+	path = 3rd_party/Catch2
+	url = https://github.com/catchorg/Catch2
