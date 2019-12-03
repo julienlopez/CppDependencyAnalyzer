@@ -5,6 +5,7 @@ project(CppDependencyAnalyzer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# a garder ?
 if(MSVC)
     set(CMAKE_DEBUG_POSTFIX "d")
 endif()
@@ -20,8 +21,6 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" OFF)
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake) # a garder ?
 						  
 include_directories(3rd_party/GSL/include)
 include_directories(3rd_party/expected/include)
