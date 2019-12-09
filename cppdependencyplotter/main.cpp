@@ -1,4 +1,4 @@
-#include "file.hpp"
+#include "classparser.hpp"
 
 #include <filesystem>
 #include <iostream>
@@ -11,7 +11,7 @@ namespace
 template <class ITER1, class ITER2, class OUTPUT_ITER>
 OUTPUT_ITER copy_difference(ITER1 begin1, ITER1 end1, ITER2 begin2, ITER2 end2, OUTPUT_ITER out)
 {
-    auto [ it1, it2 ] = std::mismatch(begin1, end1, begin2);
+    auto[it1, it2] = std::mismatch(begin1, end1, begin2);
     if(it1 == end1 && it2 == end2) return out;
     if(it1 == end1)
         return std::copy(it2, end2, out);
@@ -52,5 +52,9 @@ int main(int argc, char* argv[])
         return 1;
     }
     auto files = loadFiles(argv[1]);
+    std::wcout << L"loaded " << files.size() << L" files" << std::endl;
+    for(const auto& f : files)
+        std::wcout << f.fileName() << L"\n" << f.fullPath().stem() << std::endl;
+    Cda::ClassParser::run(std::move(files));
     return 0;
 }
