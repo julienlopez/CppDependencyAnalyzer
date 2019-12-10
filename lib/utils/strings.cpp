@@ -1,6 +1,10 @@
 #include "strings.hpp"
 
 #include <cctype>
+#include <sstream>
+
+namespace
+{
 
 template <class STRING> bool startsWith(const STRING& str, const STRING& token)
 {
@@ -22,6 +26,17 @@ template <class STRING> STRING trim(STRING str)
         str.erase(--str.end());
     return str;
 }
+template <class STRING> auto split(const STRING& str, typename STRING::value_type separator)
+{
+    std::vector<STRING> res;
+    STRING line;
+    std::basic_istringstream<typename STRING::value_type> stream(str);
+    while(std::getline(stream, line, separator))
+        res.push_back(line);
+    return res;
+}
+
+} // namespace
 
 namespace Cda
 {
@@ -69,6 +84,16 @@ namespace Utils
         return {str.begin(), str.end()};
     }
 
-} // Utils
+    std::vector<std::string> Strings::split(const std::string& str, char separator)
+    {
+        return ::split<std::string>(str, separator);
+    }
 
-} // Cda
+    std::vector<std::wstring> Strings::split(const std::wstring& str, wchar_t separator)
+    {
+        return ::split<std::wstring>(str, separator);
+    }
+
+} // namespace Utils
+
+} // namespace Cda

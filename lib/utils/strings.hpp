@@ -26,6 +26,10 @@ namespace Utils
         std::wstring convert(const std::string& str);
 
         std::string convert(const std::wstring& str);
+
+        std::vector<std::string> split(const std::string& str, char separator);
+
+        std::vector<std::wstring> split(const std::wstring& str, wchar_t separator);
     }
 
 } // Utils

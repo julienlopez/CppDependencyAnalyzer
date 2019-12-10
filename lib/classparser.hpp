@@ -15,12 +15,43 @@ struct ClassFiles
     std::optional<File> source_file;
 };
 
+enum class Visibility
+{
+    Private,
+    Protected,
+    Public
+};
+
+struct MemberFunction
+{
+    Visibility visibility;
+    // std::wstring return_type;
+    std::wstring name;
+    bool is_const;
+};
+
+struct MemberVariable
+{
+    Visibility visibility;
+    std::wstring type;
+    std::wstring name;
+    bool is_reference;
+    bool is_const;
+};
+
+struct HeaderContent
+{
+    std::vector<MemberFunction> functions;
+    std::vector<MemberVariable> variables;
+};
+
 struct Class
 {
-    Class(std::wstring name_, ClassFiles files_);
+    Class(std::wstring name_, ClassFiles files_, HeaderContent header_content_);
 
     const std::wstring name;
     ClassFiles files;
+    HeaderContent header_content;
 };
 
 class ClassParser

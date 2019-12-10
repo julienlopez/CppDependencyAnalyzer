@@ -107,6 +107,65 @@ namespace
         return {cleanupClassName(std::move(name)), it_begin, it_end};
     }
 
+    std::optional<MemberVariable> parseMemberVariable(const std::wstring& line, Visibility current_visibility)
+    {
+        auto parts = Utils::Strings::split(line, L' ');
+        if(parts.size() != 2)
+        {
+            std::wcerr << L"can't parse member variable " << line << std::endl;
+            return std::nullopt;
+        }
+        for(auto& p : parts)
+            p = Utils::Strings::trim(p);
+        bool is_reference = false;
+        bool is_const = false;
+        if(Utils::Strings::endsWith(parts[0], L"&"))
+        {
+            is_reference = true;
+            parts[0].pop_back();
+        }
+        if(Utils::Strings::startsWith(parts[0], L"const "))
+        {
+            is_const = true;
+            parts[0].erase(0, 6);
+        }
+        return MemberVariable{current_visibility, parts[0], parts[1], is_reference, is_const};
+    }
+
+    HeaderContent parseHeaderContent(const std::wstring& class_name, File::LineContainer_t::const_iterator begin,
+                                     File::LineContainer_t::const_iterator end)
+    {
+        HeaderContent res;
+        auto current_visibility = Visibility::Private;
+        for(auto it = begin; it != end; ++it)
+        {
+            auto current_line = it->content;
+            if(Utils::Strings::startsWith(current_line, L"using")) continue;
+            if(current_line.find(class_name + L"(") != std::wstring::npos) continue;
+            if(current_line == L"public:")
+                current_visibility = Visibility::Public;
+            else if(current_line == L"protected:")
+                current_visibility = Visibility::Protected;
+            else if(current_line == L"private:")
+                current_visibility = Visibility::Private;
+            else
+
+            {
+                const auto it2 = current_line.find(L"(");
+                if(it2 == std::wstring::npos)
+                {
+                    const auto var = parseMemberVariable(current_line, current_visibility);
+                    if(var) res.variables.push_back(std::move(*var));
+                }
+                else
+                {
+                    std::wcout << "\t\tfnc: " << current_line << std::endl;
+                }
+            }
+        }
+        return res;
+    }
+
 } // namespace
 
 ClassFiles::ClassFiles(File header_file_, std::optional<File> source_file_)
@@ -115,9 +174,10 @@ ClassFiles::ClassFiles(File header_file_, std::optional<File> source_file_)
 {
 }
 
-Class::Class(std::wstring name_, ClassFiles files_)
+Class::Class(std::wstring name_, ClassFiles files_, HeaderContent header_content_)
     : name(std::move(name_))
     , files(std::move(files_))
+    , header_content(std::move(header_content_))
 {
 }
 
@@ -133,12 +193,13 @@ std::vector<Class> ClassParser::run(std::vector<File> files)
 Class ClassParser::parseClass(ClassFiles files)
 {
     cleanupHeaderFile(files.header_file.m_lines);
-    auto [name, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
+    auto[name, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
     std::wcout << files.header_file.fullPath() << std::endl;
     std::wcout << name << std::endl;
     for(const auto& l : files.header_file.m_lines)
         std::wcout << L"\t" << l.number << ":\t" << l.content << std::endl;
-    return {std::move(name), std::move(files)};
+    auto content = parseHeaderContent(name, it_begin, it_end);
+    return {std::move(name), std::move(files), std::move(content)};
 }
 
 std::vector<ClassFiles> ClassParser::bunchFilesByClasses(std::vector<File> files)
