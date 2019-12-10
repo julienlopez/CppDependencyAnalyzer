@@ -200,6 +200,15 @@ namespace
         return res;
     }
 
+    std::vector<File> filterFilesWithProperExtensions(std::vector<File> files)
+    {
+        std::vector<File> res;
+        std::copy_if(
+            std::make_move_iterator(begin(files)), std::make_move_iterator(end(files)), std::back_inserter(res),
+            [](const File& f) { return f.fullPath().extension() == ".hpp" || f.fullPath().extension() == ".cpp"; });
+        return res;
+    }
+
 } // namespace
 
 ClassFiles::ClassFiles(File header_file_, std::optional<File> source_file_)
@@ -217,7 +226,7 @@ Class::Class(std::wstring name_, ClassFiles files_, HeaderContent header_content
 
 std::vector<Class> ClassParser::run(std::vector<File> files)
 {
-    auto class_files = bunchFilesByClasses(std::move(files));
+    auto class_files = bunchFilesByClasses(filterFilesWithProperExtensions(std::move(files)));
     std::vector<Class> res;
     for(auto& f : class_files)
         res.emplace_back(parseClass(std::move(f)));
