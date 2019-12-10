@@ -2,6 +2,12 @@
 
 #include <cctype>
 
+template <class STRING> bool startsWith(const STRING& str, const STRING& token)
+{
+    if(token.size() > str.size()) return false;
+    return std::equal(token.begin(), token.end(), str.begin());
+}
+
 template <class STRING> bool endsWith(const STRING& str, const STRING& token)
 {
     if(token.size() > str.size()) return false;
@@ -41,6 +47,16 @@ namespace Utils
     bool Strings::endsWith(const std::string& str, const std::string& token)
     {
         return ::endsWith<std::string>(str, token);
+    }
+
+    bool Strings::startsWith(const std::wstring& str, const std::wstring& token)
+    {
+        return ::startsWith<std::wstring>(str, token);
+    }
+
+    bool Strings::startsWith(const std::string& str, const std::string& token)
+    {
+        return ::startsWith<std::string>(str, token);
     }
 
     std::wstring Strings::convert(const std::string& str)

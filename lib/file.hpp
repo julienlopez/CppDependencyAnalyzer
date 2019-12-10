@@ -35,6 +35,8 @@ public:
 private:
     const std::wstring m_file_name;
     const Path_t m_full_path;
+
+public:
     LineContainer_t m_lines;
 };
 

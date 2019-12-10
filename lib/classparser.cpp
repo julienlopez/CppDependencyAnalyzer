@@ -1,5 +1,7 @@
 #include "classparser.hpp"
 
+#include "utils/strings.hpp"
+
 #include <map>
 
 #include <iostream>
@@ -18,6 +20,16 @@ namespace
             mapping[stem].push_back(std::move(f));
         }
         return mapping;
+    }
+
+    void removeForwardDeclarations(File::LineContainer_t& lines)
+    {
+        lines.erase(std::remove_if(begin(lines), end(lines),
+                                   [](const File::Line& line) {
+                                       return Utils::Strings::startsWith(line.content, L"class ")
+                                              && Utils::Strings::endsWith(line.content, L";");
+                                   }),
+                    end(lines));
     }
 
 } // namespace
@@ -46,6 +58,12 @@ std::vector<Class> ClassParser::run(std::vector<File> files)
 
 Class ClassParser::parseClass(ClassFiles files)
 {
+    std::wcout << files.header_file.fullPath() << std::endl;
+    for(const auto& l : files.header_file.m_lines)
+        std::wcout << L"\t" << l.number << ":\t" << l.content << std::endl;
+    removeForwardDeclarations(files.header_file.m_lines);
+    for(const auto& l : files.header_file.m_lines)
+        std::wcout << L"\t" << l.number << ":\t" << l.content << std::endl;
     return {std::move(files)};
 }
 

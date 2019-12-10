@@ -19,6 +19,10 @@ namespace Utils
 
         bool endsWith(const std::string& str, const std::string& token);
 
+        bool startsWith(const std::wstring& str, const std::wstring& token);
+
+        bool startsWith(const std::string& str, const std::string& token);
+
         std::wstring convert(const std::string& str);
 
         std::string convert(const std::wstring& str);
