@@ -15,7 +15,7 @@ public:
         bool keep_std_typed_variables = false;
     };
 
-    explicit ClassParser(Parameters parameters = {});
+    explicit ClassParser(Parameters parameters = {false});
 
     ~ClassParser() = default;
 
