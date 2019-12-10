@@ -73,12 +73,21 @@ namespace
         }
     }
 
+    void removeBasicComments(File::LineContainer_t& lines)
+    {
+        lines.erase(
+            std::remove_if(begin(lines), end(lines),
+                           [](const File::Line& line) { return Utils::Strings::startsWith(line.content, L"//"); }),
+            end(lines));
+    }
+
     void cleanupHeaderFile(File::LineContainer_t& lines)
     {
         removeForwardDeclarations(lines);
         removePreprocessorLines(lines);
         removeEmptyNamespaces(lines);
         removeDocComments(lines);
+        removeBasicComments(lines);
     }
 
     std::wstring cleanupClassName(std::wstring line)

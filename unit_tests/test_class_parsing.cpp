@@ -93,12 +93,36 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
         CHECK_FALSE(res.header_content.variables.front().is_reference);
     }
 
-    SECTION("Class parsing discards basic comments")
+    SECTION("Class parsing discards basic comments (1)")
     {
         std::wstring str = LR"(class A 
                             {
                                 public:
                                     // some comment
+                                    int run(int i);
+                                private:
+                                    int m_a;
+                            }; )";
+        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
+        auto res = Cda::ClassParser().parseClass(header);
+        REQUIRE(res.header_content.functions.size() == 1);
+        CHECK(res.header_content.functions.front().name == L"run");
+        CHECK(res.header_content.functions.front().visibility == Cda::Visibility::Public);
+        CHECK_FALSE(res.header_content.functions.front().is_const);
+        REQUIRE(res.header_content.variables.size() == 1);
+        CHECK(res.header_content.variables.front().name == L"m_a");
+        CHECK(res.header_content.variables.front().type == L"int");
+        CHECK(res.header_content.variables.front().visibility == Cda::Visibility::Private);
+        CHECK_FALSE(res.header_content.variables.front().is_const);
+        CHECK_FALSE(res.header_content.variables.front().is_reference);
+    }
+
+    SECTION("Class parsing discards basic comments (2)")
+    {
+        std::wstring str = LR"(class A 
+                            {
+                                public:
+                                    // some_comment
                                     int run(int i);
                                 private:
                                     int m_a;
