@@ -17,7 +17,7 @@ template <class STRING> STRING trim(STRING str)
     return str;
 }
 
-namespace Stilla
+namespace Cda
 {
 
 namespace Utils
@@ -55,4 +55,4 @@ namespace Utils
 
 } // Utils
 
-} // Stilla
+} // Cda

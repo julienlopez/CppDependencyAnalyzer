@@ -1,5 +1,7 @@
 #include "file.hpp"
 
+#include "utils/strings.hpp"
+
 #include <fstream>
 
 namespace Cda
@@ -15,7 +17,7 @@ namespace
         std::size_t cpt = 0;
         while(std::getline(stream, line))
         {
-            if(!line.empty()) res.push_back({cpt, std::move(line)});
+            if(!line.empty()) res.push_back({cpt, Utils::Strings::trim(std::move(line))});
             cpt++;
         }
         return res;
