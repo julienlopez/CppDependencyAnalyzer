@@ -3,6 +3,7 @@
 #include "utils/strings.hpp"
 
 #include <map>
+#include <stdexcept>
 
 #include <iostream>
 
@@ -71,6 +72,41 @@ namespace
         }
     }
 
+    void cleanupHeaderFile(File::LineContainer_t& lines)
+    {
+        removeForwardDeclarations(lines);
+        removePreprocessorLines(lines);
+        removeEmptyNamespaces(lines);
+        removeDocComments(lines);
+    }
+
+    std::wstring cleanupClassName(std::wstring line)
+    {
+        if(Utils::Strings::startsWith(line, L"class ")) line.erase(begin(line), begin(line) + 6);
+        const auto it = std::find_if(begin(line), end(line), &isblank);
+        line.erase(it, end(line));
+        return line;
+    }
+
+    std::tuple<std::wstring, File::LineContainer_t::const_iterator, File::LineContainer_t::const_iterator>
+    findClassesBoundariesAndName(const File::LineContainer_t& lines)
+    {
+        auto it_begin = std::find_if(begin(lines), end(lines), [](const File::Line& line) {
+            return Utils::Strings::startsWith(line.content, L"class ");
+        });
+        if(it_begin == end(lines)) throw std::runtime_error("unable to find the start of the class");
+        auto name = it_begin->content;
+        std::advance(it_begin, 1);
+        if(it_begin == end(lines) || it_begin->content != L"{")
+            throw std::runtime_error("unable to find the start of the class");
+        std::advance(it_begin, 1);
+        if(it_begin == end(lines)) throw std::runtime_error("unable to find the start of the class");
+        const auto it_end
+            = std::find_if(it_begin, end(lines), [](const File::Line& line) { return line.content == L"};"; });
+        if(it_end == end(lines)) throw std::runtime_error("unable to find the end of the class");
+        return {cleanupClassName(std::move(name)), it_begin, it_end};
+    }
+
 } // namespace
 
 ClassFiles::ClassFiles(File header_file_, std::optional<File> source_file_)
@@ -79,8 +115,9 @@ ClassFiles::ClassFiles(File header_file_, std::optional<File> source_file_)
 {
 }
 
-Class::Class(ClassFiles files_)
-    : files(std::move(files_))
+Class::Class(std::wstring name_, ClassFiles files_)
+    : name(std::move(name_))
+    , files(std::move(files_))
 {
 }
 
@@ -95,13 +132,13 @@ std::vector<Class> ClassParser::run(std::vector<File> files)
 
 Class ClassParser::parseClass(ClassFiles files)
 {
-    removeForwardDeclarations(files.header_file.m_lines);
-    removePreprocessorLines(files.header_file.m_lines);
-    removeEmptyNamespaces(files.header_file.m_lines);
-    removeDocComments(files.header_file.m_lines);
+    cleanupHeaderFile(files.header_file.m_lines);
+    auto [name, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
+    std::wcout << files.header_file.fullPath() << std::endl;
+    std::wcout << name << std::endl;
     for(const auto& l : files.header_file.m_lines)
         std::wcout << L"\t" << l.number << ":\t" << l.content << std::endl;
-    return {std::move(files)};
+    return {std::move(name), std::move(files)};
 }
 
 std::vector<ClassFiles> ClassParser::bunchFilesByClasses(std::vector<File> files)

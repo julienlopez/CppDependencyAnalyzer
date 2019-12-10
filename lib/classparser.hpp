@@ -17,8 +17,9 @@ struct ClassFiles
 
 struct Class
 {
-    Class(ClassFiles files_);
+    Class(std::wstring name_, ClassFiles files_);
 
+    const std::wstring name;
     ClassFiles files;
 };
 
