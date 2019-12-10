@@ -10,7 +10,12 @@ namespace Cda
 class ClassParser
 {
 public:
-    explicit ClassParser() = default;
+    struct Parameters
+    {
+        bool keep_std_typed_variables = false;
+    };
+
+    explicit ClassParser(Parameters parameters = {});
 
     ~ClassParser() = default;
 
@@ -19,6 +24,7 @@ public:
     Class parseClass(ClassFiles files);
 
 private:
+    Parameters m_parameters;
     Visibility m_current_visibility = Visibility::Private;
 
     static std::vector<ClassFiles> bunchFilesByClasses(std::vector<File> files);

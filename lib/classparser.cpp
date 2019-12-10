@@ -145,6 +145,11 @@ Class::Class(std::wstring name_, ClassFiles files_, HeaderContent header_content
 {
 }
 
+ClassParser::ClassParser(Parameters parameters)
+    : m_parameters(std::move(parameters))
+{
+}
+
 std::vector<Class> ClassParser::run(std::vector<File> files)
 {
     auto class_files = bunchFilesByClasses(filterFilesWithProperExtensions(std::move(files)));
@@ -226,7 +231,11 @@ HeaderContent ClassParser::parseHeaderContent(const std::wstring& class_name,
             if(it2 == std::wstring::npos)
             {
                 auto var = parseMemberVariable(current_line);
-                if(var) res.variables.push_back(std::move(*var));
+                if(var)
+                {
+                    if(m_parameters.keep_std_typed_variables || !Utils::Strings::startsWith(var->type, L"std::"))
+                        res.variables.push_back(std::move(*var));
+                }
             }
             else
             {

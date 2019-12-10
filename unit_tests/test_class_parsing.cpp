@@ -165,4 +165,32 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
         CHECK_FALSE(res.header_content.variables.front().is_const);
         CHECK_FALSE(res.header_content.variables.front().is_reference);
     }
+
+    SECTION("handling variables with std types")
+    {
+        std::wstring str = LR"(class A 
+                            {
+                                private:
+                                    std::string m_a;
+                            }; )";
+        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
+        auto res = Cda::ClassParser({true}).parseClass(header);
+        REQUIRE(res.header_content.functions.empty());
+        REQUIRE(res.header_content.variables.size() == 1);
+        CHECK(res.header_content.variables.front().name == L"m_a");
+        CHECK(res.header_content.variables.front().type == L"std::string");
+    }
+
+    SECTION("disabling variables with std types")
+    {
+        std::wstring str = LR"(class A 
+                            {
+                                private:
+                                    std::string m_a;
+                            }; )";
+        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
+        auto res = Cda::ClassParser({false}).parseClass(header);
+        REQUIRE(res.header_content.functions.empty());
+        REQUIRE(res.header_content.variables.empty());
+    }
 }
