@@ -95,7 +95,7 @@ namespace
             auto it_next = it + 1;
             if(it_next != end(lines))
             {
-                it->content += it_next->content;
+                it->content += L" " + it_next->content;
                 lines.erase(it_next);
                 --it;
             }
