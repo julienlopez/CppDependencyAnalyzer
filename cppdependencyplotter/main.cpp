@@ -52,9 +52,6 @@ int main(int argc, char* argv[])
         return 1;
     }
     auto files = loadFiles(argv[1]);
-    std::wcout << L"loaded " << files.size() << L" files" << std::endl;
-    for(const auto& f : files)
-        std::wcout << f.fileName() << L"\n" << f.fullPath().stem() << std::endl;
-    Cda::ClassParser::run(std::move(files));
+    const auto classes = Cda::ClassParser::run(std::move(files));
     return 0;
 }
