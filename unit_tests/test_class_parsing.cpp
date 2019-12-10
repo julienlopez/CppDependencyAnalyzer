@@ -38,7 +38,7 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
         CHECK(res.header_content.functions.front().visibility == Cda::Visibility::Public);
         CHECK_FALSE(res.header_content.functions.front().is_const);
         REQUIRE(res.header_content.variables.size() == 1);
-        CHECK(res.header_content.variables.front().name == L"m_a;");
+        CHECK(res.header_content.variables.front().name == L"m_a");
         CHECK(res.header_content.variables.front().type == L"int");
         CHECK(res.header_content.variables.front().visibility == Cda::Visibility::Private);
         CHECK_FALSE(res.header_content.variables.front().is_const);

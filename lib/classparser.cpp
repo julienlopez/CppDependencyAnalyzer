@@ -140,6 +140,7 @@ namespace
         {
             parts[0] = parts[0].substr(16, parts[0].size() - 17);
         }
+        parts[1].pop_back();
         return MemberVariable{current_visibility, parts[0], parts[1], is_reference, is_const};
     }
 
