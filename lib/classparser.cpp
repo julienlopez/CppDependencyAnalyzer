@@ -2,6 +2,7 @@
 
 #include "utils/strings.hpp"
 
+#include <algorithm>
 #include <map>
 #include <stdexcept>
 
