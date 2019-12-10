@@ -81,6 +81,27 @@ namespace
             end(lines));
     }
 
+    void mergeSplitLines(File::LineContainer_t& lines)
+    {
+        for(auto it = begin(lines); it != end(lines); ++it)
+        {
+            if(Utils::Strings::endsWith(it->content, L";")) continue;
+            if(Utils::Strings::endsWith(it->content, L":")) continue;
+            if(Utils::Strings::startsWith(it->content, L"{")) continue;
+            if(Utils::Strings::startsWith(it->content, L"}")) continue;
+            if(Utils::Strings::startsWith(it->content, L"class ")) continue;
+            if(Utils::Strings::startsWith(it->content, L"struct ")) continue;
+            if(Utils::Strings::startsWith(it->content, L"namespace ")) continue;
+            auto it_next = it + 1;
+            if(it_next != end(lines))
+            {
+                it->content += it_next->content;
+                lines.erase(it_next);
+                --it;
+            }
+        }
+    }
+
     void cleanupHeaderFile(File::LineContainer_t& lines)
     {
         removeForwardDeclarations(lines);
@@ -88,6 +109,7 @@ namespace
         removeEmptyNamespaces(lines);
         removeDocComments(lines);
         removeBasicComments(lines);
+        mergeSplitLines(lines);
     }
 
     std::wstring cleanupClassName(std::wstring line)
