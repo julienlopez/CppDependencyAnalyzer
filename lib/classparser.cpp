@@ -26,18 +26,55 @@ namespace
     {
         lines.erase(std::remove_if(begin(lines), end(lines),
                                    [](const File::Line& line) {
-                                       return Utils::Strings::startsWith(line.content, L"class ")
+                                       return (Utils::Strings::startsWith(line.content, L"class ")
+                                               || Utils::Strings::startsWith(line.content, L"struct "))
                                               && Utils::Strings::endsWith(line.content, L";");
                                    }),
                     end(lines));
     }
 
+    void removePreprocessorLines(File::LineContainer_t& lines)
+    {
+        lines.erase(
+            std::remove_if(begin(lines), end(lines),
+                           [](const File::Line& line) { return Utils::Strings::startsWith(line.content, L"#"); }),
+            end(lines));
+    }
+
+    void removeEmptyNamespaces(File::LineContainer_t& lines)
+    {
+        for(auto it = begin(lines); it != end(lines); ++it)
+        {
+            auto it2 = it;
+            if(!Utils::Strings::startsWith(it2->content, L"namespace ")) continue;
+            std::advance(it2, 1);
+            if(it2 == end(lines) || it2->content != L"{") continue;
+            std::advance(it2, 1);
+            if(it2 == end(lines) || it2->content != L"}") continue;
+            std::advance(it2, 1);
+            if(it2 == end(lines)) continue;
+            it = lines.erase(it, it2);
+        }
+    }
+
+    void removeDocComments(File::LineContainer_t& lines)
+    {
+        for(auto it = begin(lines); it != end(lines); ++it)
+        {
+            auto it2 = it;
+            if(!Utils::Strings::startsWith(it2->content, L"/**")) continue;
+            std::advance(it2, 1);
+            while(it2 != end(lines) && Utils::Strings::startsWith(it2->content, L"*"))
+                std::advance(it2, 1);
+            if(it2 == end(lines)) continue;
+            it = lines.erase(it, it2);
+        }
+    }
+
 } // namespace
 
 ClassFiles::ClassFiles(File header_file_, std::optional<File> source_file_)
-    :
-
-    header_file(std::move(header_file_))
+    : header_file(std::move(header_file_))
     , source_file(std::move(source_file_))
 {
 }
@@ -58,10 +95,10 @@ std::vector<Class> ClassParser::run(std::vector<File> files)
 
 Class ClassParser::parseClass(ClassFiles files)
 {
-    std::wcout << files.header_file.fullPath() << std::endl;
-    for(const auto& l : files.header_file.m_lines)
-        std::wcout << L"\t" << l.number << ":\t" << l.content << std::endl;
     removeForwardDeclarations(files.header_file.m_lines);
+    removePreprocessorLines(files.header_file.m_lines);
+    removeEmptyNamespaces(files.header_file.m_lines);
+    removeDocComments(files.header_file.m_lines);
     for(const auto& l : files.header_file.m_lines)
         std::wcout << L"\t" << l.number << ":\t" << l.content << std::endl;
     return {std::move(files)};
