@@ -5,42 +5,35 @@
 namespace Cda
 {
 
-namespace
-{
-    using VertexMapping_t = std::map<std::wstring, GraphBuilder::Graph::vertex_descriptor>;
-
-    std::optional<GraphBuilder::Graph::vertex_descriptor> findVertex(const VertexMapping_t& mapping,
-                                                                     const std::wstring& name)
-    {
-        auto it = mapping.find(name);
-        if(it == end(mapping))
-        {
-            std::wcerr << L"Unable to find " << name << std::endl;
-            return std::nullopt;
-        }
-        return it->second;
-    }
-
-} // namespace
-
 auto GraphBuilder::buildGraph(const std::vector<Class>& classes) -> Graph
 {
-    Graph g;
-    VertexMapping_t mapping;
     for(const auto& c : classes)
     {
-        mapping[c.name] = boost::add_vertex(VertexProperties{c.name}, g);
+        m_vertex_mapping[c.name] = boost::add_vertex(VertexProperties{c.name}, m_graph);
     }
 
     for(const auto& c : classes)
         for(const auto& var : c.header_content.variables)
         {
-            const auto u = findVertex(mapping, c.name);
-            const auto v = findVertex(mapping, var.type);
-            if(u && v) boost::add_edge(*u, *v, EdgeProperties{L"uses"}, g);
+            const auto u = findOrAddVertex(c.name);
+            const auto v = findOrAddVertex(var.type);
+            boost::add_edge(u, v, EdgeProperties{L"uses"}, m_graph);
         }
 
-    return g;
+    return m_graph;
+}
+
+auto GraphBuilder::findOrAddVertex(const std::wstring& name) -> Graph::vertex_descriptor
+{
+    auto it = m_vertex_mapping.find(name);
+    if(it == end(m_vertex_mapping))
+    {
+        std::wcerr << L"Unable to find " << name << std::endl;
+        const auto res = boost::add_vertex(VertexProperties{name}, m_graph);
+        m_vertex_mapping[name] = res;
+        return res;
+    }
+    return it->second;
 }
 
 } // namespace Cda

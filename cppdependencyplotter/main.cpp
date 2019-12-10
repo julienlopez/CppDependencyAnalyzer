@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    const auto graph = Cda::GraphBuilder::buildGraph(classes);
+    const auto graph = Cda::GraphBuilder().buildGraph(classes);
 
     return 0;
 }
