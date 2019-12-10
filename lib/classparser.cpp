@@ -136,6 +136,10 @@ namespace
             is_reference = true;
             parts[0].pop_back();
         }
+        if(Utils::Strings::startsWith(parts[0], L"std::unique_ptr<") && Utils::Strings::endsWith(parts[0], L">"))
+        {
+            parts[0] = parts[0].substr(16, parts[0].size() - 17);
+        }
         return MemberVariable{current_visibility, parts[0], parts[1], is_reference, is_const};
     }
 

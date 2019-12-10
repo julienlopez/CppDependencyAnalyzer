@@ -1,6 +1,9 @@
 #include "classparser.hpp"
+#include "graphbuilder.hpp"
+#include "graphwritter.hpp"
 
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include <gsl/gsl_assert>
@@ -74,6 +77,11 @@ int main(int argc, char* argv[])
             std::wcout << std::endl;
         }
     }
+
+    Cda::GraphBuilder graph;
+    graph.buildGraph(classes);
+    std::ofstream dotfile("out.dot");
+    Cda::GraphWritter(dotfile).printGraph(graph);
 
     return 0;
 }
