@@ -53,5 +53,27 @@ int main(int argc, char* argv[])
     }
     auto files = loadFiles(argv[1]);
     const auto classes = Cda::ClassParser::run(std::move(files));
+
+    for(const auto& c : classes)
+    {
+        std::wcout << c.name << L":\n" << L"member functions:\n";
+        for(const auto& f : c.header_content.functions)
+        {
+            std::wcout << L"\t" << f.name << L"()";
+            if(f.is_const) std::wcout << L" (const)";
+            std::wcout << std::endl;
+        }
+        std::wcout << L"member variables:\n";
+        for(const auto& v : c.header_content.variables)
+        {
+            std::wcout << L"\t";
+            if(v.is_const) std::wcout << L"const ";
+            std::wcout << v.type;
+            if(v.is_reference) std::wcout << L"&";
+            std::wcout << L" " << v.name;
+            std::wcout << std::endl;
+        }
+    }
+
     return 0;
 }
