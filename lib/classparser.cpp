@@ -132,6 +132,28 @@ namespace
         return MemberVariable{current_visibility, parts[0], parts[1], is_reference, is_const};
     }
 
+    std::optional<MemberFunction> parseMemberFunction(const std::wstring& line, Visibility current_visibility)
+    {
+        const auto is_const
+            = Utils::Strings::endsWith(line, L" const;") || Utils::Strings::endsWith(line, L" const = 0;");
+        auto parts = Utils::Strings::split(line, L'(');
+        if(parts.size() != 2)
+        {
+            std::wcerr << L"can't parse member function " << line << std::endl;
+            return std::nullopt;
+        }
+        parts = Utils::Strings::split(parts[0], L' ');
+        if(!parts.empty() && parts[0] == L"[[nodiscard]]") parts.erase(begin(parts));
+        if(parts.size() != 2)
+        {
+            std::wcerr << L"can't parse member function " << line << std::endl;
+            return std::nullopt;
+        }
+        for(auto& p : parts)
+            p = Utils::Strings::trim(p);
+        return MemberFunction{current_visibility, parts[1], is_const};
+    }
+
     HeaderContent parseHeaderContent(const std::wstring& class_name, File::LineContainer_t::const_iterator begin,
                                      File::LineContainer_t::const_iterator end)
     {
@@ -154,12 +176,13 @@ namespace
                 const auto it2 = current_line.find(L"(");
                 if(it2 == std::wstring::npos)
                 {
-                    const auto var = parseMemberVariable(current_line, current_visibility);
+                    auto var = parseMemberVariable(current_line, current_visibility);
                     if(var) res.variables.push_back(std::move(*var));
                 }
                 else
                 {
-                    std::wcout << "\t\tfnc: " << current_line << std::endl;
+                    auto fct = parseMemberFunction(current_line, current_visibility);
+                    if(fct) res.functions.push_back(std::move(*fct));
                 }
             }
         }
@@ -193,7 +216,7 @@ std::vector<Class> ClassParser::run(std::vector<File> files)
 Class ClassParser::parseClass(ClassFiles files)
 {
     cleanupHeaderFile(files.header_file.m_lines);
-    auto[name, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
+    auto [name, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
     std::wcout << files.header_file.fullPath() << std::endl;
     std::wcout << name << std::endl;
     for(const auto& l : files.header_file.m_lines)
