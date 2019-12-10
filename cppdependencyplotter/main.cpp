@@ -2,9 +2,12 @@
 #include "graphbuilder.hpp"
 
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include <gsl/gsl_assert>
+
+#include <boost/graph/graphviz.hpp>
 
 namespace
 {
@@ -76,7 +79,10 @@ int main(int argc, char* argv[])
         }
     }
 
-    const auto graph = Cda::GraphBuilder().buildGraph(classes);
+    Cda::GraphBuilder graph;
+    graph.buildGraph(classes);
+    std::ofstream dotfile("out.dot");
+    boost::write_graphviz(dotfile, graph.graph(), boost::make_label_writer(graph));
 
     return 0;
 }

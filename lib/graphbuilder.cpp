@@ -1,11 +1,13 @@
 #include "graphbuilder.hpp"
 
+#include "utils/strings.hpp"
+
 #include <iostream>
 
 namespace Cda
 {
 
-auto GraphBuilder::buildGraph(const std::vector<Class>& classes) -> Graph
+void GraphBuilder::buildGraph(const std::vector<Class>& classes)
 {
     for(const auto& c : classes)
     {
@@ -19,7 +21,10 @@ auto GraphBuilder::buildGraph(const std::vector<Class>& classes) -> Graph
             const auto v = findOrAddVertex(var.type);
             boost::add_edge(u, v, EdgeProperties{L"uses"}, m_graph);
         }
+}
 
+auto GraphBuilder::graph() const -> const Graph&
+{
     return m_graph;
 }
 
@@ -34,6 +39,17 @@ auto GraphBuilder::findOrAddVertex(const std::wstring& name) -> Graph::vertex_de
         return res;
     }
     return it->second;
+}
+
+std::wstring GraphBuilder::vertexName(const Graph::vertex_descriptor v) const
+{
+    return m_graph.m_vertices[v].m_property.m_value;
+}
+
+// TODO find a better way?
+std::string get(const GraphBuilder& g, const GraphBuilder::Graph::vertex_descriptor v)
+{
+    return Utils::Strings::convert(g.vertexName(v));
 }
 
 } // namespace Cda

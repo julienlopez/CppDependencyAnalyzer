@@ -18,7 +18,11 @@ public:
 
     ~GraphBuilder() = default;
 
-    Graph buildGraph(const std::vector<Class>& classes);
+    void buildGraph(const std::vector<Class>& classes);
+
+    const Graph& graph() const;
+
+    std::wstring vertexName(const Graph::vertex_descriptor v) const;
 
 private:
     using VertexMapping_t = std::map<std::wstring, GraphBuilder::Graph::vertex_descriptor>;
@@ -28,5 +32,7 @@ private:
 
     Graph::vertex_descriptor findOrAddVertex(const std::wstring& name);
 };
+
+std::string get(const GraphBuilder& g, const GraphBuilder::Graph::vertex_descriptor v);
 
 } // namespace Cda
