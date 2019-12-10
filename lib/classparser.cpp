@@ -84,6 +84,7 @@ namespace
     std::wstring cleanupClassName(std::wstring line)
     {
         if(Utils::Strings::startsWith(line, L"class ")) line.erase(begin(line), begin(line) + 6);
+        if(Utils::Strings::startsWith(line, L"struct ")) line.erase(begin(line), begin(line) + 7);
         const auto it = std::find_if(begin(line), end(line), &isblank);
         line.erase(it, end(line));
         return line;
@@ -93,7 +94,8 @@ namespace
     findClassesBoundariesAndName(const File::LineContainer_t& lines)
     {
         auto it_begin = std::find_if(begin(lines), end(lines), [](const File::Line& line) {
-            return Utils::Strings::startsWith(line.content, L"class ");
+            return Utils::Strings::startsWith(line.content, L"class ")
+                   || Utils::Strings::startsWith(line.content, L"struct ");
         });
         if(it_begin == end(lines)) throw std::runtime_error("unable to find the start of the class");
         auto name = it_begin->content;
