@@ -1,13 +1,12 @@
 #include "classparser.hpp"
 #include "graphbuilder.hpp"
+#include "graphwritter.hpp"
 
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 
 #include <gsl/gsl_assert>
-
-#include <boost/graph/graphviz.hpp>
 
 namespace
 {
@@ -82,7 +81,7 @@ int main(int argc, char* argv[])
     Cda::GraphBuilder graph;
     graph.buildGraph(classes);
     std::ofstream dotfile("out.dot");
-    boost::write_graphviz(dotfile, graph.graph(), boost::make_label_writer(graph));
+    Cda::GraphWritter(dotfile).printGraph(graph);
 
     return 0;
 }
