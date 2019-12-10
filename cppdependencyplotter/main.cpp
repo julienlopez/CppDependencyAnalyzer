@@ -1,4 +1,5 @@
 #include "classparser.hpp"
+#include "graphbuilder.hpp"
 
 #include <filesystem>
 #include <iostream>
@@ -74,6 +75,8 @@ int main(int argc, char* argv[])
             std::wcout << std::endl;
         }
     }
+
+    const auto graph = Cda::GraphBuilder::buildGraph(classes);
 
     return 0;
 }
