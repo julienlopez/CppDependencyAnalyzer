@@ -24,17 +24,18 @@ public:
         std::size_t number;
         std::wstring content;
     };
+    using LineContainer_t = std::vector<Line>;
+
+    explicit File(std::wstring file_name, Path_t full_path, LineContainer_t lines);
 
     const std::wstring& fileName() const;
 
     const Path_t& fullPath() const;
 
 private:
-    explicit File(std::wstring file_name, Path_t full_path);
-
     const std::wstring m_file_name;
     const Path_t m_full_path;
-    std::vector<Line> m_lines;
+    LineContainer_t m_lines;
 };
 
 } // namespace Cda

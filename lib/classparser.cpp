@@ -40,8 +40,13 @@ std::vector<Class> ClassParser::run(std::vector<File> files)
     auto class_files = bunchFilesByClasses(std::move(files));
     std::vector<Class> res;
     for(auto& f : class_files)
-        res.emplace_back(std::move(f));
+        res.emplace_back(parseClass(std::move(f)));
     return res;
+}
+
+Class ClassParser::parseClass(ClassFiles files)
+{
+    return {std::move(files)};
 }
 
 std::vector<ClassFiles> ClassParser::bunchFilesByClasses(std::vector<File> files)
