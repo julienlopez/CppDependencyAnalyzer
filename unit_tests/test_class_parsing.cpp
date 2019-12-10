@@ -32,7 +32,7 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                                     int m_a;
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
-        auto res = Cda::ClassParser::parseClass(header);
+        auto res = Cda::ClassParser().parseClass(header);
         REQUIRE(res.header_content.functions.size() == 1);
         CHECK(res.header_content.functions.front().name == L"run");
         CHECK(res.header_content.functions.front().visibility == Cda::Visibility::Public);
@@ -49,13 +49,12 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
     {
         std::wstring str = LR"(struct A 
                             {
-                                public:
                                     int run(int i);
                                 private:
                                     int m_a;
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
-        auto res = Cda::ClassParser::parseClass(header);
+        auto res = Cda::ClassParser().parseClass(header);
         REQUIRE(res.header_content.functions.size() == 1);
         CHECK(res.header_content.functions.front().name == L"run");
         CHECK(res.header_content.functions.front().visibility == Cda::Visibility::Public);

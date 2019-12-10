@@ -90,119 +90,6 @@ namespace
         return line;
     }
 
-    std::tuple<std::wstring, File::LineContainer_t::const_iterator, File::LineContainer_t::const_iterator>
-    findClassesBoundariesAndName(const File::LineContainer_t& lines)
-    {
-        auto it_begin = std::find_if(begin(lines), end(lines), [](const File::Line& line) {
-            return Utils::Strings::startsWith(line.content, L"class ")
-                   || Utils::Strings::startsWith(line.content, L"struct ");
-        });
-        if(it_begin == end(lines)) throw std::runtime_error("unable to find the start of the class");
-        auto name = it_begin->content;
-        std::advance(it_begin, 1);
-        if(it_begin == end(lines) || it_begin->content != L"{")
-            throw std::runtime_error("unable to find the start of the class");
-        std::advance(it_begin, 1);
-        if(it_begin == end(lines)) throw std::runtime_error("unable to find the start of the class");
-        const auto it_end
-            = std::find_if(it_begin, end(lines), [](const File::Line& line) { return line.content == L"};"; });
-        if(it_end == end(lines)) throw std::runtime_error("unable to find the end of the class");
-        return {cleanupClassName(std::move(name)), it_begin, it_end};
-    }
-
-    std::optional<MemberVariable> parseMemberVariable(std::wstring line, Visibility current_visibility)
-    {
-        if(line.find(L")") != std::wstring::npos || line.find(L",") != std::wstring::npos
-           || line.find(L"[[nodiscard]]") != std::wstring::npos)
-        {
-            std::wcerr << L"can't parse member variable " << line << L" (1)" << std::endl;
-            return std::nullopt;
-        }
-        bool is_const = false;
-        if(Utils::Strings::startsWith(line, L"const "))
-        {
-            is_const = true;
-            line.erase(0, 6);
-        }
-        auto parts = Utils::Strings::split(line, L' ');
-        if(parts.size() != 2)
-        {
-            std::wcerr << L"can't parse member variable " << line << L" (2)" << std::endl;
-            return std::nullopt;
-        }
-        for(auto& p : parts)
-            p = Utils::Strings::trim(p);
-        bool is_reference = false;
-        if(Utils::Strings::endsWith(parts[0], L"&"))
-        {
-            is_reference = true;
-            parts[0].pop_back();
-        }
-        if(Utils::Strings::startsWith(parts[0], L"std::unique_ptr<") && Utils::Strings::endsWith(parts[0], L">"))
-        {
-            parts[0] = parts[0].substr(16, parts[0].size() - 17);
-        }
-        parts[1].pop_back();
-        return MemberVariable{current_visibility, parts[0], parts[1], is_reference, is_const};
-    }
-
-    std::optional<MemberFunction> parseMemberFunction(const std::wstring& line, Visibility current_visibility)
-    {
-        const auto is_const
-            = Utils::Strings::endsWith(line, L" const;") || Utils::Strings::endsWith(line, L" const = 0;");
-        auto parts = Utils::Strings::split(line, L'(');
-        if(parts.size() != 2)
-        {
-            std::wcerr << L"can't parse member function " << line << std::endl;
-            return std::nullopt;
-        }
-        parts = Utils::Strings::split(parts[0], L' ');
-        if(!parts.empty() && parts[0] == L"[[nodiscard]]") parts.erase(begin(parts));
-        if(parts.size() != 2)
-        {
-            std::wcerr << L"can't parse member function " << line << std::endl;
-            return std::nullopt;
-        }
-        for(auto& p : parts)
-            p = Utils::Strings::trim(p);
-        return MemberFunction{current_visibility, parts[1], is_const};
-    }
-
-    HeaderContent parseHeaderContent(const std::wstring& class_name, File::LineContainer_t::const_iterator begin,
-                                     File::LineContainer_t::const_iterator end)
-    {
-        HeaderContent res;
-        auto current_visibility = Visibility::Private;
-        for(auto it = begin; it != end; ++it)
-        {
-            auto current_line = it->content;
-            if(Utils::Strings::startsWith(current_line, L"using")) continue;
-            if(current_line.find(class_name + L"(") != std::wstring::npos) continue;
-            if(current_line == L"public:")
-                current_visibility = Visibility::Public;
-            else if(current_line == L"protected:")
-                current_visibility = Visibility::Protected;
-            else if(current_line == L"private:")
-                current_visibility = Visibility::Private;
-            else
-
-            {
-                const auto it2 = current_line.find(L"(");
-                if(it2 == std::wstring::npos)
-                {
-                    auto var = parseMemberVariable(current_line, current_visibility);
-                    if(var) res.variables.push_back(std::move(*var));
-                }
-                else
-                {
-                    auto fct = parseMemberFunction(current_line, current_visibility);
-                    if(fct) res.functions.push_back(std::move(*fct));
-                }
-            }
-        }
-        return res;
-    }
-
     std::vector<File> filterFilesWithProperExtensions(std::vector<File> files)
     {
         std::vector<File> res;
@@ -244,6 +131,28 @@ Class ClassParser::parseClass(ClassFiles files)
     return {std::move(name), std::move(files), std::move(content)};
 }
 
+std::tuple<std::wstring, File::LineContainer_t::const_iterator, File::LineContainer_t::const_iterator>
+ClassParser::findClassesBoundariesAndName(const File::LineContainer_t& lines)
+{
+    auto it_begin = std::find_if(begin(lines), end(lines), [](const File::Line& line) {
+        return Utils::Strings::startsWith(line.content, L"class ")
+               || Utils::Strings::startsWith(line.content, L"struct ");
+    });
+    if(it_begin == end(lines)) throw std::runtime_error("unable to find the start of the class");
+    if(Utils::Strings::startsWith(it_begin->content, L"class ")) m_current_visibility = Visibility::Private;
+    if(Utils::Strings::startsWith(it_begin->content, L"struct ")) m_current_visibility = Visibility::Public;
+    auto name = it_begin->content;
+    std::advance(it_begin, 1);
+    if(it_begin == end(lines) || it_begin->content != L"{")
+        throw std::runtime_error("unable to find the start of the class");
+    std::advance(it_begin, 1);
+    if(it_begin == end(lines)) throw std::runtime_error("unable to find the start of the class");
+    const auto it_end
+        = std::find_if(it_begin, end(lines), [](const File::Line& line) { return line.content == L"};"; });
+    if(it_end == end(lines)) throw std::runtime_error("unable to find the end of the class");
+    return {cleanupClassName(std::move(name)), it_begin, it_end};
+}
+
 std::vector<ClassFiles> ClassParser::bunchFilesByClasses(std::vector<File> files)
 {
     std::vector<ClassFiles> res;
@@ -261,6 +170,98 @@ std::vector<ClassFiles> ClassParser::bunchFilesByClasses(std::vector<File> files
         res.emplace_back(std::move(*header_file), std::move(source_file));
     }
     return res;
+}
+
+HeaderContent ClassParser::parseHeaderContent(const std::wstring& class_name,
+                                              File::LineContainer_t::const_iterator begin,
+                                              File::LineContainer_t::const_iterator end)
+{
+    HeaderContent res;
+    for(auto it = begin; it != end; ++it)
+    {
+        auto current_line = it->content;
+        if(Utils::Strings::startsWith(current_line, L"using")) continue;
+        if(current_line.find(class_name + L"(") != std::wstring::npos) continue;
+        if(current_line == L"public:")
+            m_current_visibility = Visibility::Public;
+        else if(current_line == L"protected:")
+            m_current_visibility = Visibility::Protected;
+        else if(current_line == L"private:")
+            m_current_visibility = Visibility::Private;
+        else
+
+        {
+            const auto it2 = current_line.find(L"(");
+            if(it2 == std::wstring::npos)
+            {
+                auto var = parseMemberVariable(current_line);
+                if(var) res.variables.push_back(std::move(*var));
+            }
+            else
+            {
+                auto fct = parseMemberFunction(current_line);
+                if(fct) res.functions.push_back(std::move(*fct));
+            }
+        }
+    }
+    return res;
+}
+
+std::optional<MemberVariable> ClassParser::parseMemberVariable(std::wstring line) const
+{
+    if(line.find(L")") != std::wstring::npos || line.find(L",") != std::wstring::npos
+       || line.find(L"[[nodiscard]]") != std::wstring::npos)
+    {
+        std::wcerr << L"can't parse member variable " << line << L" (1)" << std::endl;
+        return std::nullopt;
+    }
+    bool is_const = false;
+    if(Utils::Strings::startsWith(line, L"const "))
+    {
+        is_const = true;
+        line.erase(0, 6);
+    }
+    auto parts = Utils::Strings::split(line, L' ');
+    if(parts.size() != 2)
+    {
+        std::wcerr << L"can't parse member variable " << line << L" (2)" << std::endl;
+        return std::nullopt;
+    }
+    for(auto& p : parts)
+        p = Utils::Strings::trim(p);
+    bool is_reference = false;
+    if(Utils::Strings::endsWith(parts[0], L"&"))
+    {
+        is_reference = true;
+        parts[0].pop_back();
+    }
+    if(Utils::Strings::startsWith(parts[0], L"std::unique_ptr<") && Utils::Strings::endsWith(parts[0], L">"))
+    {
+        parts[0] = parts[0].substr(16, parts[0].size() - 17);
+    }
+    parts[1].pop_back();
+    return MemberVariable{m_current_visibility, parts[0], parts[1], is_reference, is_const};
+}
+
+std::optional<MemberFunction> ClassParser::parseMemberFunction(const std::wstring& line) const
+{
+    const auto is_const = Utils::Strings::endsWith(line, L" const;") || Utils::Strings::endsWith(line, L" const = 0;");
+    auto parts = Utils::Strings::split(line, L'(');
+    if(parts.size() != 2)
+    {
+        std::wcerr << L"can't parse member function " << line << std::endl;
+        return std::nullopt;
+    }
+    parts = Utils::Strings::split(parts[0], L' ');
+    if(!parts.empty() && parts[0] == L"[[nodiscard]]") parts.erase(begin(parts));
+    if(parts.size() != 2)
+    {
+        std::wcerr << L"can't parse member function " << line << std::endl;
+        return std::nullopt;
+    }
+    for(auto& p : parts)
+        p = Utils::Strings::trim(p);
+    return MemberFunction{m_current_visibility, parts[1], is_const};
 }
 
 } // namespace Cda

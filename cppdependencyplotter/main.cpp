@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
         return 1;
     }
     auto files = loadFiles(argv[1]);
-    const auto classes = Cda::ClassParser::run(std::move(files));
+    const auto classes = Cda::ClassParser().run(std::move(files));
 
     for(const auto& c : classes)
     {
