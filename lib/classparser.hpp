@@ -29,7 +29,8 @@ private:
 
     static std::vector<ClassFiles> bunchFilesByClasses(std::vector<File> files);
 
-    std::tuple<std::wstring, File::LineContainer_t::const_iterator, File::LineContainer_t::const_iterator>
+    std::tuple<std::wstring, std::vector<Inheritance>, File::LineContainer_t::const_iterator,
+               File::LineContainer_t::const_iterator>
     findClassesBoundariesAndName(const File::LineContainer_t& lines);
 
     HeaderContent parseHeaderContent(const std::wstring& class_name, File::LineContainer_t::const_iterator begin,
@@ -38,6 +39,8 @@ private:
     std::optional<MemberVariable> parseMemberVariable(std::wstring line) const;
 
     std::optional<MemberFunction> parseMemberFunction(const std::wstring& line) const;
+
+    std::vector<Inheritance> findInheritances(std::wstring class_declaration_line) const;
 };
 
 } // namespace Cda
