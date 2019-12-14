@@ -89,15 +89,18 @@ namespace
             if(Utils::Strings::endsWith(it->content, L":")) continue;
             if(Utils::Strings::startsWith(it->content, L"{")) continue;
             if(Utils::Strings::startsWith(it->content, L"}")) continue;
-            if(Utils::Strings::startsWith(it->content, L"class ")) continue;
-            if(Utils::Strings::startsWith(it->content, L"struct ")) continue;
             if(Utils::Strings::startsWith(it->content, L"namespace ")) continue;
+            if(Utils::Strings::startsWith(it->content, L"class ")
+               || Utils::Strings::startsWith(it->content, L"struct "))
+            {
+                if((it + 1) != end(lines) && (it + 1)->content == L"{") continue;
+            }
             auto it_next = it + 1;
             if(it_next != end(lines))
             {
                 it->content += L" " + it_next->content;
                 lines.erase(it_next);
-                --it;
+                if(it != begin(lines)) --it;
             }
         }
     }
@@ -128,6 +131,13 @@ namespace
             std::make_move_iterator(begin(files)), std::make_move_iterator(end(files)), std::back_inserter(res),
             [](const File& f) { return f.fullPath().extension() == ".hpp" || f.fullPath().extension() == ".cpp"; });
         return res;
+    }
+
+    Visibility parseVisibility(const std::wstring& str)
+    {
+        if(str == L"public") return Visibility::Public;
+        if(str == L"protected") return Visibility::Protected;
+        return Visibility::Private;
     }
 
 } // namespace
@@ -162,12 +172,14 @@ std::vector<Class> ClassParser::run(std::vector<File> files)
 Class ClassParser::parseClass(ClassFiles files)
 {
     cleanupHeaderFile(files.header_file.m_lines);
-    auto[name, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
+    auto[name, inheritances, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
     auto content = parseHeaderContent(name, it_begin, it_end);
+    content.inheritances = std::move(inheritances);
     return {std::move(name), std::move(files), std::move(content)};
 }
 
-std::tuple<std::wstring, File::LineContainer_t::const_iterator, File::LineContainer_t::const_iterator>
+std::tuple<std::wstring, std::vector<Inheritance>, File::LineContainer_t::const_iterator,
+           File::LineContainer_t::const_iterator>
 ClassParser::findClassesBoundariesAndName(const File::LineContainer_t& lines)
 {
     auto it_begin = std::find_if(begin(lines), end(lines), [](const File::Line& line) {
@@ -178,6 +190,7 @@ ClassParser::findClassesBoundariesAndName(const File::LineContainer_t& lines)
     if(Utils::Strings::startsWith(it_begin->content, L"class ")) m_current_visibility = Visibility::Private;
     if(Utils::Strings::startsWith(it_begin->content, L"struct ")) m_current_visibility = Visibility::Public;
     auto name = it_begin->content;
+    const auto inheritances = findInheritances(it_begin->content);
     std::advance(it_begin, 1);
     if(it_begin == end(lines) || it_begin->content != L"{")
         throw std::runtime_error("unable to find the start of the class");
@@ -186,7 +199,7 @@ ClassParser::findClassesBoundariesAndName(const File::LineContainer_t& lines)
     const auto it_end
         = std::find_if(it_begin, end(lines), [](const File::Line& line) { return line.content == L"};"; });
     if(it_end == end(lines)) throw std::runtime_error("unable to find the end of the class");
-    return {cleanupClassName(std::move(name)), it_begin, it_end};
+    return {cleanupClassName(std::move(name)), inheritances, it_begin, it_end};
 }
 
 std::vector<ClassFiles> ClassParser::bunchFilesByClasses(std::vector<File> files)
@@ -302,6 +315,23 @@ std::optional<MemberFunction> ClassParser::parseMemberFunction(const std::wstrin
     for(auto& p : parts)
         p = Utils::Strings::trim(p);
     return MemberFunction{m_current_visibility, parts[1], is_const};
+}
+
+std::vector<Inheritance> ClassParser::findInheritances(std::wstring class_declaration_line) const
+{
+    const auto it = find(begin(class_declaration_line), end(class_declaration_line), ':');
+    if(it == end(class_declaration_line)) return {};
+    class_declaration_line.erase(begin(class_declaration_line), it + 1);
+    class_declaration_line = Utils::Strings::trim(class_declaration_line);
+    std::vector<Inheritance> res;
+    auto inheritances = Utils::Strings::split(class_declaration_line, ',');
+    for(auto& inheritance : inheritances)
+    {
+        inheritance = Utils::Strings::trim(inheritance);
+        const auto parts = Utils::Strings::split(inheritance, ' ');
+        if(parts.size() == 2) res.push_back({parseVisibility(parts[0]), parts[1]});
+    }
+    return res;
 }
 
 } // namespace Cda

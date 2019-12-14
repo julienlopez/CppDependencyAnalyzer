@@ -39,10 +39,17 @@ struct MemberVariable
     bool is_const;
 };
 
+struct Inheritance
+{
+    Visibility visibility;
+    std::wstring type;
+};
+
 struct HeaderContent
 {
     std::vector<MemberFunction> functions;
     std::vector<MemberVariable> variables;
+    std::vector<Inheritance> inheritances;
 };
 
 struct Class
