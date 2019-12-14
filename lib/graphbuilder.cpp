@@ -54,10 +54,4 @@ std::wstring GraphBuilder::vertexName(const Graph::vertex_descriptor v) const
     return m_graph.m_vertices[v].m_property.m_value;
 }
 
-// TODO find a better way?
-std::string get(const GraphBuilder& g, const GraphBuilder::Graph::vertex_descriptor v)
-{
-    return Utils::Strings::convert(g.vertexName(v));
-}
-
 } // namespace Cda

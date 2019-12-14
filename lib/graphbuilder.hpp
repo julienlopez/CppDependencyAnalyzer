@@ -44,6 +44,4 @@ private:
     Graph::vertex_descriptor findOrAddVertex(const std::wstring& name);
 };
 
-std::string get(const GraphBuilder& g, const GraphBuilder::Graph::vertex_descriptor v);
-
 } // namespace Cda
