@@ -13,9 +13,10 @@ public:
     struct Parameters
     {
         bool keep_std_typed_variables = false;
+        bool keep_boost_typed_variables = false;
     };
 
-    explicit ClassParser(Parameters parameters = {false});
+    explicit ClassParser(Parameters parameters = {false, false});
 
     ~ClassParser() = default;
 

@@ -172,7 +172,7 @@ std::vector<Class> ClassParser::run(std::vector<File> files)
 Class ClassParser::parseClass(ClassFiles files)
 {
     cleanupHeaderFile(files.header_file.m_lines);
-    auto[name, inheritances, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
+    auto [name, inheritances, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
     auto content = parseHeaderContent(name, it_begin, it_end);
     content.inheritances = std::move(inheritances);
     return {std::move(name), std::move(files), std::move(content)};
@@ -246,8 +246,11 @@ HeaderContent ClassParser::parseHeaderContent(const std::wstring& class_name,
                 auto var = parseMemberVariable(current_line);
                 if(var)
                 {
-                    if(m_parameters.keep_std_typed_variables || !Utils::Strings::startsWith(var->type, L"std::"))
-                        res.variables.push_back(std::move(*var));
+                    if(!m_parameters.keep_std_typed_variables && Utils::Strings::startsWith(var->type, L"std::"))
+                        continue;
+                    if(!m_parameters.keep_boost_typed_variables && Utils::Strings::startsWith(var->type, L"boost::"))
+                        continue;
+                    res.variables.push_back(std::move(*var));
                 }
             }
             else
@@ -329,7 +332,12 @@ std::vector<Inheritance> ClassParser::findInheritances(std::wstring class_declar
     {
         inheritance = Utils::Strings::trim(inheritance);
         const auto parts = Utils::Strings::split(inheritance, ' ');
-        if(parts.size() == 2) res.push_back({parseVisibility(parts[0]), parts[1]});
+        if(parts.size() == 2)
+        {
+            if(!m_parameters.keep_std_typed_variables && Utils::Strings::startsWith(parts[1], L"std::")) continue;
+            if(!m_parameters.keep_boost_typed_variables && Utils::Strings::startsWith(parts[1], L"boost::")) continue;
+            res.push_back({parseVisibility(parts[0]), parts[1]});
+        }
     }
     return res;
 }
