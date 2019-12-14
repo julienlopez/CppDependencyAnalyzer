@@ -57,7 +57,7 @@ namespace
 
         void operator()(std::ostream& out) const
         {
-            out << "graph [rankdir = \"LR\" nodesep = 2];\nnode [shape=record,width=.1,height=.1];";
+            out << "graph [rankdir = \"LR\" nodesep = 2];\nnode [shape=record,width=.1,height=.1];\n";
         }
     };
 }

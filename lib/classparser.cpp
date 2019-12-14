@@ -172,7 +172,7 @@ std::vector<Class> ClassParser::run(std::vector<File> files)
 Class ClassParser::parseClass(ClassFiles files)
 {
     cleanupHeaderFile(files.header_file.m_lines);
-    auto [name, inheritances, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
+    auto[name, inheritances, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
     auto content = parseHeaderContent(name, it_begin, it_end);
     content.inheritances = std::move(inheritances);
     return {std::move(name), std::move(files), std::move(content)};
