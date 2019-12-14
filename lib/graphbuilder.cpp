@@ -15,12 +15,20 @@ void GraphBuilder::buildGraph(const std::vector<Class>& classes)
     }
 
     for(const auto& c : classes)
+    {
         for(const auto& var : c.header_content.variables)
         {
             const auto u = findOrAddVertex(c.name);
             const auto v = findOrAddVertex(var.type);
-            boost::add_edge(u, v, EdgeProperties{L"uses"}, m_graph);
+            const auto p = boost::add_edge(u, v, EdgeProperties{Type::Use}, m_graph);
         }
+        for(const auto& i : c.header_content.inheritances)
+        {
+            const auto u = findOrAddVertex(c.name);
+            const auto v = findOrAddVertex(i.type);
+            const auto p = boost::add_edge(u, v, EdgeProperties{Type::Inherits}, m_graph);
+        }
+    }
 }
 
 auto GraphBuilder::graph() const -> const Graph&

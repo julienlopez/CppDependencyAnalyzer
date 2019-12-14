@@ -10,8 +10,19 @@ namespace Cda
 class GraphBuilder
 {
 public:
+    struct type_t
+    {
+        using kind = boost::edge_property_tag;
+    };
+
+    enum class Type
+    {
+        Use,
+        Inherits
+    };
+
     using VertexProperties = boost::property<boost::vertex_name_t, std::wstring>;
-    using EdgeProperties = boost::property<boost::edge_name_t, std::wstring>;
+    using EdgeProperties = boost::property<type_t, Type>;
     using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, VertexProperties, EdgeProperties>;
 
     GraphBuilder() = default;

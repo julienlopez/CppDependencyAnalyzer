@@ -39,8 +39,11 @@ namespace
 
         template <class Edge> void operator()(std::ostream& out, const Edge& e) const
         {
-            // out << "[arrowhead=normal]"; // classic use
-            // out << "[arrowhead=onormal]"; // inheritance
+            const auto map = boost::get(GraphBuilder::type_t{}, m_graph.graph());
+            if(map(e) == GraphBuilder::Type::Inherits)
+                out << "[arrowhead=onormal]"; // inheritance
+            else
+                out << "[arrowhead=normal]"; // classic use
         }
 
     private:
