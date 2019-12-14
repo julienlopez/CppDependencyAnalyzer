@@ -89,15 +89,18 @@ namespace
             if(Utils::Strings::endsWith(it->content, L":")) continue;
             if(Utils::Strings::startsWith(it->content, L"{")) continue;
             if(Utils::Strings::startsWith(it->content, L"}")) continue;
-            if(Utils::Strings::startsWith(it->content, L"class ")) continue;
-            if(Utils::Strings::startsWith(it->content, L"struct ")) continue;
             if(Utils::Strings::startsWith(it->content, L"namespace ")) continue;
+            if(Utils::Strings::startsWith(it->content, L"class ")
+               || Utils::Strings::startsWith(it->content, L"struct "))
+            {
+                if((it + 1) != end(lines) && (it + 1)->content == L"{") continue;
+            }
             auto it_next = it + 1;
             if(it_next != end(lines))
             {
                 it->content += L" " + it_next->content;
                 lines.erase(it_next);
-                --it;
+                if(it != begin(lines)) --it;
             }
         }
     }
@@ -320,9 +323,15 @@ std::vector<Inheritance> ClassParser::findInheritances(std::wstring class_declar
     if(it == end(class_declaration_line)) return {};
     class_declaration_line.erase(begin(class_declaration_line), it + 1);
     class_declaration_line = Utils::Strings::trim(class_declaration_line);
-    const auto parts = Utils::Strings::split(class_declaration_line, ' ');
-    if(parts.size() != 2) return {};
-    return {{parseVisibility(parts[0]), parts[1]}};
+    std::vector<Inheritance> res;
+    auto inheritances = Utils::Strings::split(class_declaration_line, ',');
+    for(auto& inheritance : inheritances)
+    {
+        inheritance = Utils::Strings::trim(inheritance);
+        const auto parts = Utils::Strings::split(inheritance, ' ');
+        if(parts.size() == 2) res.push_back({parseVisibility(parts[0]), parts[1]});
+    }
+    return res;
 }
 
 } // namespace Cda

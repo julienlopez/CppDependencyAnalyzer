@@ -210,4 +210,43 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
         CHECK(res.header_content.inheritances.front().type == L"B");
         CHECK(res.header_content.inheritances.front().visibility == Cda::Visibility::Public);
     }
+
+    SECTION("Class parsing with two public inheritances on a single line")
+    {
+        std::wstring str = LR"(class A : public B, private C
+                            {
+                                public:
+                                    int run(int i);
+                                private:
+                                    int m_a;
+                            }; )";
+        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
+        auto res = Cda::ClassParser().parseClass(header);
+        REQUIRE(res.name == L"A");
+        REQUIRE(res.header_content.inheritances.size() == 2);
+        CHECK(res.header_content.inheritances.front().type == L"B");
+        CHECK(res.header_content.inheritances.front().visibility == Cda::Visibility::Public);
+        CHECK(res.header_content.inheritances.back().type == L"C");
+        CHECK(res.header_content.inheritances.back().visibility == Cda::Visibility::Private);
+    }
+
+    SECTION("Class parsing with two public inheritances on a two line")
+    {
+        std::wstring str = LR"(class A : public B, 
+                                         private C
+                            {
+                                public:
+                                    int run(int i);
+                                private:
+                                    int m_a;
+                            }; )";
+        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
+        auto res = Cda::ClassParser().parseClass(header);
+        REQUIRE(res.name == L"A");
+        REQUIRE(res.header_content.inheritances.size() == 2);
+        CHECK(res.header_content.inheritances.front().type == L"B");
+        CHECK(res.header_content.inheritances.front().visibility == Cda::Visibility::Public);
+        CHECK(res.header_content.inheritances.back().type == L"C");
+        CHECK(res.header_content.inheritances.back().visibility == Cda::Visibility::Private);
+    }
 }
