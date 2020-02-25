@@ -213,7 +213,7 @@ std::optional<Class> ClassParser::parseClass(ClassFiles files)
     try
     {
         cleanupHeaderFile(files.header_file.m_lines);
-        auto [name, inheritances, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
+        auto[name, inheritances, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
         auto content = parseHeaderContent(name, it_begin, it_end);
         content.inheritances = std::move(inheritances);
         return Class{std::move(name), std::move(files), std::move(content)};
