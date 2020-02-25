@@ -262,4 +262,17 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
         CHECK(res.header_content.functions.front().name == L"run");
         CHECK(res.header_content.functions.front().is_virtual);
     }
+
+    SECTION("Bug in class parsing with inlines functions")
+    {
+        std::wstring str = LR"(class A
+                            {
+                                A()
+                                {
+                                }
+                            }; )";
+        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
+        CHECK_NOTHROW(Cda::ClassParser().parseClass(header));
+        const auto res = Cda::ClassParser().parseClass(header);
+    }
 }

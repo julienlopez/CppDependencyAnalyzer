@@ -83,20 +83,21 @@ namespace
 
     void mergeSplitLines(File::LineContainer_t& lines)
     {
+        using Utils::Strings::endsWith;
+        using Utils::Strings::startsWith;
         for(auto it = begin(lines); it != end(lines); ++it)
         {
-            if(Utils::Strings::endsWith(it->content, L";")) continue;
-            if(Utils::Strings::endsWith(it->content, L":")) continue;
-            if(Utils::Strings::startsWith(it->content, L"{")) continue;
-            if(Utils::Strings::startsWith(it->content, L"}")) continue;
-            if(Utils::Strings::startsWith(it->content, L"namespace ")) continue;
-            if(Utils::Strings::startsWith(it->content, L"class ")
-               || Utils::Strings::startsWith(it->content, L"struct "))
+            if(endsWith(it->content, L";")) continue;
+            if(endsWith(it->content, L":")) continue;
+            if(startsWith(it->content, L"{")) continue;
+            if(startsWith(it->content, L"}")) continue;
+            if(startsWith(it->content, L"namespace ")) continue;
+            if(startsWith(it->content, L"class ") || startsWith(it->content, L"struct "))
             {
                 if((it + 1) != end(lines) && (it + 1)->content == L"{") continue;
             }
             auto it_next = it + 1;
-            if(it_next != end(lines))
+            if(it_next != end(lines) && it_next->content != L"};")
             {
                 it->content += L" " + it_next->content;
                 lines.erase(it_next);
