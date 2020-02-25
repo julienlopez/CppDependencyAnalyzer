@@ -13,8 +13,8 @@ public:
     using Path_t = std::filesystem::path;
 
     /**
-    * @pre is_regular_file(file)
-    */
+     * @pre is_regular_file(file)
+     */
     static File readFromFileSystem(std::wstring file_name, Path_t file);
 
     ~File() = default;
