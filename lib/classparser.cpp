@@ -162,6 +162,15 @@ namespace
         return line;
     }
 
+    void mergeSplitTypes(std::vector<std::wstring>& parts)
+    {
+        while(parts.size() > 2 && parts.front().find(L'<') != std::wstring::npos)
+        {
+            parts[0] += parts[1];
+            parts.erase(begin(parts) + 1);
+        }
+    }
+
 } // namespace
 
 ClassFiles::ClassFiles(File header_file_, std::optional<File> source_file_)
@@ -331,6 +340,7 @@ std::optional<MemberFunction> ClassParser::parseMemberFunction(std::wstring line
     if(findAndRemoveKeyword(parts, L"virtual")) is_virtual = true;
     if(findAndRemoveKeyword(parts, L"override")) is_virtual = true;
     const auto is_const = findAndRemoveKeyword(parts, L"const");
+    mergeSplitTypes(parts);
     if(parts.size() != 2)
     {
         std::wcerr << L"can't parse member function " << line << " : " << parts.size() << std::endl;

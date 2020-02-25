@@ -314,4 +314,16 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
         CHECK_NOTHROW(Cda::ClassParser().parseClass(header));
         const auto res = Cda::ClassParser().parseClass(header);
     }
+
+    SECTION("Class parsing of a function returning a complex templated type")
+    {
+        std::wstring str = LR"(class A
+                            {
+                                std::pair<int, std::string> run(int i) const;
+                            }; )";
+        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
+        const auto res = Cda::ClassParser().parseClass(header);
+        REQUIRE(res.header_content.functions.size() == 1);
+        CHECK(res.header_content.functions.front().name == L"run");
+    }
 }
