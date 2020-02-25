@@ -2,22 +2,9 @@
 
 #include "classparser.hpp"
 
-#include "utils/strings.hpp"
+#include "classgenerator.hpp"
 
-namespace
-{
-
-auto linesFromString(const std::wstring& str)
-{
-    std::vector<Cda::File::Line> res;
-    auto parts = Cda::Utils::Strings::split(str, L'\n');
-    std::size_t cpt = 0;
-    for(auto& line : parts)
-        res.push_back({cpt++, Cda::Utils::Strings::trim(std::move(line))});
-    return res;
-}
-
-} // namespace
+using namespace Testing;
 
 TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
 {
@@ -260,16 +247,24 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
     }
 }
 
+namespace
+{
+
+auto parseClassWithFunction(std::vector<std::wstring> lines)
+{
+    ClassGenerator cg;
+    for(auto& line : lines)
+        cg.addLine(std::move(line));
+    return Cda::ClassParser().parseClass(cg);
+}
+
+} // namespace
+
 TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
 {
     SECTION("Class parsing with a simple virtual function")
     {
-        std::wstring str = LR"(class A
-                            {
-                                virtual int run(int i);
-                            }; )";
-        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
-        const auto res = Cda::ClassParser().parseClass(header);
+        const auto res = parseClassWithFunction({L"virtual int run(int i);"});
         REQUIRE(res);
         REQUIRE(res->header_content.functions.size() == 1);
         CHECK(res->header_content.functions.front().name == L"run");
@@ -278,12 +273,7 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
 
     SECTION("Class parsing with a simple virtual function marked override")
     {
-        std::wstring str = LR"(class A
-                            {
-                                virtual int run(int i) override;
-                            }; )";
-        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
-        const auto res = Cda::ClassParser().parseClass(header);
+        const auto res = parseClassWithFunction({L"virtual int run(int i) override;"});
         REQUIRE(res);
         REQUIRE(res->header_content.functions.size() == 1);
         CHECK(res->header_content.functions.front().name == L"run");
@@ -292,12 +282,7 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
 
     SECTION("Class parsing with a simple function marked override")
     {
-        std::wstring str = LR"(class A
-                            {
-                                int run(int i) override;
-                            }; )";
-        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
-        const auto res = Cda::ClassParser().parseClass(header);
+        const auto res = parseClassWithFunction({L"int run(int i) override;"});
         REQUIRE(res);
         REQUIRE(res->header_content.functions.size() == 1);
         CHECK(res->header_content.functions.front().name == L"run");
@@ -306,12 +291,7 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
 
     SECTION("Class parsing with a simple const function marked override")
     {
-        std::wstring str = LR"(class A
-                            {
-                                int run(int i) const override;
-                            }; )";
-        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
-        const auto res = Cda::ClassParser().parseClass(header);
+        const auto res = parseClassWithFunction({L"int run(int i) const override;"});
         REQUIRE(res);
         REQUIRE(res->header_content.functions.size() == 1);
         CHECK(res->header_content.functions.front().name == L"run");
@@ -320,26 +300,13 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
 
     SECTION("Bug in class parsing with inlines functions")
     {
-        std::wstring str = LR"(class A
-                            {
-                                A()
-                                {
-                                }
-                            }; )";
-        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
-        CHECK_NOTHROW(Cda::ClassParser().parseClass(header));
-        const auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res);
+        // test both that the return is not null, and that it doesn't throw
+        CHECK_NOTHROW([]() { REQUIRE(parseClassWithFunction({L" A()", L"{", L"}"})); });
     }
 
     SECTION("Class parsing of a function returning a complex templated type")
     {
-        std::wstring str = LR"(class A
-                            {
-                                std::pair<int, std::string> run(int i) const;
-                            }; )";
-        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
-        const auto res = Cda::ClassParser().parseClass(header);
+        const auto res = parseClassWithFunction({L"std::pair<int, std::string> run(int i) const;"});
         REQUIRE(res);
         REQUIRE(res->header_content.functions.size() == 1);
         CHECK(res->header_content.functions.front().name == L"run");
@@ -347,12 +314,7 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
 
     SECTION("parsing a function returning a const type")
     {
-        std::wstring str = LR"(class A
-                            {
-                                const std::string& run(int i) const;
-                            }; )";
-        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
-        const auto res = Cda::ClassParser().parseClass(header);
+        const auto res = parseClassWithFunction({L"const std::string& run(int i) const;"});
         REQUIRE(res);
         REQUIRE(res->header_content.functions.size() == 1);
         CHECK(res->header_content.functions.front().name == L"run");
