@@ -33,16 +33,17 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
-        CHECK(res.header_content.functions.front().visibility == Cda::Visibility::Public);
-        CHECK_FALSE(res.header_content.functions.front().is_const);
-        REQUIRE(res.header_content.variables.size() == 1);
-        CHECK(res.header_content.variables.front().name == L"m_a");
-        CHECK(res.header_content.variables.front().type == L"int");
-        CHECK(res.header_content.variables.front().visibility == Cda::Visibility::Private);
-        CHECK_FALSE(res.header_content.variables.front().is_const);
-        CHECK_FALSE(res.header_content.variables.front().is_reference);
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
+        CHECK(res->header_content.functions.front().visibility == Cda::Visibility::Public);
+        CHECK_FALSE(res->header_content.functions.front().is_const);
+        REQUIRE(res->header_content.variables.size() == 1);
+        CHECK(res->header_content.variables.front().name == L"m_a");
+        CHECK(res->header_content.variables.front().type == L"int");
+        CHECK(res->header_content.variables.front().visibility == Cda::Visibility::Private);
+        CHECK_FALSE(res->header_content.variables.front().is_const);
+        CHECK_FALSE(res->header_content.variables.front().is_reference);
     }
 
     SECTION("Basic struct parsing")
@@ -55,16 +56,17 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
-        CHECK(res.header_content.functions.front().visibility == Cda::Visibility::Public);
-        CHECK_FALSE(res.header_content.functions.front().is_const);
-        REQUIRE(res.header_content.variables.size() == 1);
-        CHECK(res.header_content.variables.front().name == L"m_a");
-        CHECK(res.header_content.variables.front().type == L"int");
-        CHECK(res.header_content.variables.front().visibility == Cda::Visibility::Private);
-        CHECK_FALSE(res.header_content.variables.front().is_const);
-        CHECK_FALSE(res.header_content.variables.front().is_reference);
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
+        CHECK(res->header_content.functions.front().visibility == Cda::Visibility::Public);
+        CHECK_FALSE(res->header_content.functions.front().is_const);
+        REQUIRE(res->header_content.variables.size() == 1);
+        CHECK(res->header_content.variables.front().name == L"m_a");
+        CHECK(res->header_content.variables.front().type == L"int");
+        CHECK(res->header_content.variables.front().visibility == Cda::Visibility::Private);
+        CHECK_FALSE(res->header_content.variables.front().is_const);
+        CHECK_FALSE(res->header_content.variables.front().is_reference);
     }
 
     SECTION("Class parsing discards doc comments")
@@ -81,16 +83,17 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
-        CHECK(res.header_content.functions.front().visibility == Cda::Visibility::Public);
-        CHECK_FALSE(res.header_content.functions.front().is_const);
-        REQUIRE(res.header_content.variables.size() == 1);
-        CHECK(res.header_content.variables.front().name == L"m_a");
-        CHECK(res.header_content.variables.front().type == L"int");
-        CHECK(res.header_content.variables.front().visibility == Cda::Visibility::Private);
-        CHECK_FALSE(res.header_content.variables.front().is_const);
-        CHECK_FALSE(res.header_content.variables.front().is_reference);
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
+        CHECK(res->header_content.functions.front().visibility == Cda::Visibility::Public);
+        CHECK_FALSE(res->header_content.functions.front().is_const);
+        REQUIRE(res->header_content.variables.size() == 1);
+        CHECK(res->header_content.variables.front().name == L"m_a");
+        CHECK(res->header_content.variables.front().type == L"int");
+        CHECK(res->header_content.variables.front().visibility == Cda::Visibility::Private);
+        CHECK_FALSE(res->header_content.variables.front().is_const);
+        CHECK_FALSE(res->header_content.variables.front().is_reference);
     }
 
     SECTION("Class parsing discards basic comments (1)")
@@ -105,16 +108,17 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
-        CHECK(res.header_content.functions.front().visibility == Cda::Visibility::Public);
-        CHECK_FALSE(res.header_content.functions.front().is_const);
-        REQUIRE(res.header_content.variables.size() == 1);
-        CHECK(res.header_content.variables.front().name == L"m_a");
-        CHECK(res.header_content.variables.front().type == L"int");
-        CHECK(res.header_content.variables.front().visibility == Cda::Visibility::Private);
-        CHECK_FALSE(res.header_content.variables.front().is_const);
-        CHECK_FALSE(res.header_content.variables.front().is_reference);
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
+        CHECK(res->header_content.functions.front().visibility == Cda::Visibility::Public);
+        CHECK_FALSE(res->header_content.functions.front().is_const);
+        REQUIRE(res->header_content.variables.size() == 1);
+        CHECK(res->header_content.variables.front().name == L"m_a");
+        CHECK(res->header_content.variables.front().type == L"int");
+        CHECK(res->header_content.variables.front().visibility == Cda::Visibility::Private);
+        CHECK_FALSE(res->header_content.variables.front().is_const);
+        CHECK_FALSE(res->header_content.variables.front().is_reference);
     }
 
     SECTION("Class parsing discards basic comments (2)")
@@ -129,16 +133,17 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
-        CHECK(res.header_content.functions.front().visibility == Cda::Visibility::Public);
-        CHECK_FALSE(res.header_content.functions.front().is_const);
-        REQUIRE(res.header_content.variables.size() == 1);
-        CHECK(res.header_content.variables.front().name == L"m_a");
-        CHECK(res.header_content.variables.front().type == L"int");
-        CHECK(res.header_content.variables.front().visibility == Cda::Visibility::Private);
-        CHECK_FALSE(res.header_content.variables.front().is_const);
-        CHECK_FALSE(res.header_content.variables.front().is_reference);
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
+        CHECK(res->header_content.functions.front().visibility == Cda::Visibility::Public);
+        CHECK_FALSE(res->header_content.functions.front().is_const);
+        REQUIRE(res->header_content.variables.size() == 1);
+        CHECK(res->header_content.variables.front().name == L"m_a");
+        CHECK(res->header_content.variables.front().type == L"int");
+        CHECK(res->header_content.variables.front().visibility == Cda::Visibility::Private);
+        CHECK_FALSE(res->header_content.variables.front().is_const);
+        CHECK_FALSE(res->header_content.variables.front().is_reference);
     }
 
     SECTION("Class parsing multi-line method handling")
@@ -154,16 +159,17 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
-        CHECK(res.header_content.functions.front().visibility == Cda::Visibility::Public);
-        CHECK_FALSE(res.header_content.functions.front().is_const);
-        REQUIRE(res.header_content.variables.size() == 1);
-        CHECK(res.header_content.variables.front().name == L"m_a");
-        CHECK(res.header_content.variables.front().type == L"int");
-        CHECK(res.header_content.variables.front().visibility == Cda::Visibility::Private);
-        CHECK_FALSE(res.header_content.variables.front().is_const);
-        CHECK_FALSE(res.header_content.variables.front().is_reference);
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
+        CHECK(res->header_content.functions.front().visibility == Cda::Visibility::Public);
+        CHECK_FALSE(res->header_content.functions.front().is_const);
+        REQUIRE(res->header_content.variables.size() == 1);
+        CHECK(res->header_content.variables.front().name == L"m_a");
+        CHECK(res->header_content.variables.front().type == L"int");
+        CHECK(res->header_content.variables.front().visibility == Cda::Visibility::Private);
+        CHECK_FALSE(res->header_content.variables.front().is_const);
+        CHECK_FALSE(res->header_content.variables.front().is_reference);
     }
 
     SECTION("handling variables with std types")
@@ -175,10 +181,10 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser({true}).parseClass(header);
-        REQUIRE(res.header_content.functions.empty());
-        REQUIRE(res.header_content.variables.size() == 1);
-        CHECK(res.header_content.variables.front().name == L"m_a");
-        CHECK(res.header_content.variables.front().type == L"std::string");
+        REQUIRE(res->header_content.functions.empty());
+        REQUIRE(res->header_content.variables.size() == 1);
+        CHECK(res->header_content.variables.front().name == L"m_a");
+        CHECK(res->header_content.variables.front().type == L"std::string");
     }
 
     SECTION("disabling variables with std types")
@@ -190,8 +196,8 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser({false}).parseClass(header);
-        REQUIRE(res.header_content.functions.empty());
-        REQUIRE(res.header_content.variables.empty());
+        REQUIRE(res->header_content.functions.empty());
+        REQUIRE(res->header_content.variables.empty());
     }
 
     SECTION("Class parsing with one public inheritance")
@@ -205,10 +211,11 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.name == L"A");
-        REQUIRE(res.header_content.inheritances.size() == 1);
-        CHECK(res.header_content.inheritances.front().type == L"B");
-        CHECK(res.header_content.inheritances.front().visibility == Cda::Visibility::Public);
+        REQUIRE(res);
+        REQUIRE(res->name == L"A");
+        REQUIRE(res->header_content.inheritances.size() == 1);
+        CHECK(res->header_content.inheritances.front().type == L"B");
+        CHECK(res->header_content.inheritances.front().visibility == Cda::Visibility::Public);
     }
 
     SECTION("Class parsing with two public inheritances on a single line")
@@ -222,12 +229,13 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.name == L"A");
-        REQUIRE(res.header_content.inheritances.size() == 2);
-        CHECK(res.header_content.inheritances.front().type == L"B");
-        CHECK(res.header_content.inheritances.front().visibility == Cda::Visibility::Public);
-        CHECK(res.header_content.inheritances.back().type == L"C");
-        CHECK(res.header_content.inheritances.back().visibility == Cda::Visibility::Private);
+        REQUIRE(res);
+        REQUIRE(res->name == L"A");
+        REQUIRE(res->header_content.inheritances.size() == 2);
+        CHECK(res->header_content.inheritances.front().type == L"B");
+        CHECK(res->header_content.inheritances.front().visibility == Cda::Visibility::Public);
+        CHECK(res->header_content.inheritances.back().type == L"C");
+        CHECK(res->header_content.inheritances.back().visibility == Cda::Visibility::Private);
     }
 
     SECTION("Class parsing with two public inheritances on a two line")
@@ -242,12 +250,13 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.name == L"A");
-        REQUIRE(res.header_content.inheritances.size() == 2);
-        CHECK(res.header_content.inheritances.front().type == L"B");
-        CHECK(res.header_content.inheritances.front().visibility == Cda::Visibility::Public);
-        CHECK(res.header_content.inheritances.back().type == L"C");
-        CHECK(res.header_content.inheritances.back().visibility == Cda::Visibility::Private);
+        REQUIRE(res);
+        REQUIRE(res->name == L"A");
+        REQUIRE(res->header_content.inheritances.size() == 2);
+        CHECK(res->header_content.inheritances.front().type == L"B");
+        CHECK(res->header_content.inheritances.front().visibility == Cda::Visibility::Public);
+        CHECK(res->header_content.inheritances.back().type == L"C");
+        CHECK(res->header_content.inheritances.back().visibility == Cda::Visibility::Private);
     }
 }
 
@@ -261,9 +270,10 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         const auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
-        CHECK(res.header_content.functions.front().is_virtual);
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
+        CHECK(res->header_content.functions.front().is_virtual);
     }
 
     SECTION("Class parsing with a simple virtual function marked override")
@@ -274,9 +284,10 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         const auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
-        CHECK(res.header_content.functions.front().is_virtual);
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
+        CHECK(res->header_content.functions.front().is_virtual);
     }
 
     SECTION("Class parsing with a simple function marked override")
@@ -287,9 +298,10 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         const auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
-        CHECK(res.header_content.functions.front().is_virtual);
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
+        CHECK(res->header_content.functions.front().is_virtual);
     }
 
     SECTION("Class parsing with a simple const function marked override")
@@ -300,9 +312,10 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         const auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
-        CHECK(res.header_content.functions.front().is_virtual);
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
+        CHECK(res->header_content.functions.front().is_virtual);
     }
 
     SECTION("Bug in class parsing with inlines functions")
@@ -316,6 +329,7 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         CHECK_NOTHROW(Cda::ClassParser().parseClass(header));
         const auto res = Cda::ClassParser().parseClass(header);
+        REQUIRE(res);
     }
 
     SECTION("Class parsing of a function returning a complex templated type")
@@ -326,8 +340,9 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         const auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
     }
 
     SECTION("parsing a function returning a const type")
@@ -338,7 +353,8 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
                             }; )";
         Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
         const auto res = Cda::ClassParser().parseClass(header);
-        REQUIRE(res.header_content.functions.size() == 1);
-        CHECK(res.header_content.functions.front().name == L"run");
+        REQUIRE(res);
+        REQUIRE(res->header_content.functions.size() == 1);
+        CHECK(res->header_content.functions.front().name == L"run");
     }
 }

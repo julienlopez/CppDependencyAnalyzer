@@ -22,7 +22,7 @@ public:
 
     std::vector<Class> run(std::vector<File> files);
 
-    Class parseClass(ClassFiles files);
+    std::optional<Class> parseClass(ClassFiles files);
 
 private:
     Parameters m_parameters;

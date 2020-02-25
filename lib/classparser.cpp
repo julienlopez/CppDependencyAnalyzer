@@ -201,17 +201,29 @@ std::vector<Class> ClassParser::run(std::vector<File> files)
     auto class_files = bunchFilesByClasses(filterFilesWithProperExtensions(std::move(files)));
     std::vector<Class> res;
     for(auto& f : class_files)
-        res.emplace_back(parseClass(std::move(f)));
+    {
+        auto c = parseClass(std::move(f));
+        if(c) res.emplace_back(std::move(*c));
+    }
     return res;
 }
 
-Class ClassParser::parseClass(ClassFiles files)
+std::optional<Class> ClassParser::parseClass(ClassFiles files)
 {
-    cleanupHeaderFile(files.header_file.m_lines);
-    auto[name, inheritances, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
-    auto content = parseHeaderContent(name, it_begin, it_end);
-    content.inheritances = std::move(inheritances);
-    return {std::move(name), std::move(files), std::move(content)};
+    try
+    {
+        cleanupHeaderFile(files.header_file.m_lines);
+        auto [name, inheritances, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
+        auto content = parseHeaderContent(name, it_begin, it_end);
+        content.inheritances = std::move(inheritances);
+        return Class{std::move(name), std::move(files), std::move(content)};
+    }
+    catch(const std::exception& err)
+    {
+        std::wcerr << "exception thrown for : " << files.header_file.fileName() << std::endl;
+        std::wcerr << Utils::Strings::convert(err.what()) << std::endl;
+    }
+    return std::nullopt;
 }
 
 std::tuple<std::wstring, std::vector<Inheritance>, File::LineContainer_t::const_iterator,
