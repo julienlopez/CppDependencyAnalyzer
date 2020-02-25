@@ -263,6 +263,32 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
         CHECK(res.header_content.functions.front().is_virtual);
     }
 
+    SECTION("Class parsing with a simple virtual function marked override")
+    {
+        std::wstring str = LR"(class A
+                            {
+                                virtual int run(int i) override;
+                            }; )";
+        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
+        const auto res = Cda::ClassParser().parseClass(header);
+        REQUIRE(res.header_content.functions.size() == 1);
+        CHECK(res.header_content.functions.front().name == L"run");
+        CHECK(res.header_content.functions.front().is_virtual);
+    }
+
+    SECTION("Class parsing with a simple function marked override")
+    {
+        std::wstring str = LR"(class A
+                            {
+                                int run(int i) override;
+                            }; )";
+        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
+        const auto res = Cda::ClassParser().parseClass(header);
+        REQUIRE(res.header_content.functions.size() == 1);
+        CHECK(res.header_content.functions.front().name == L"run");
+        CHECK(res.header_content.functions.front().is_virtual);
+    }
+
     SECTION("Bug in class parsing with inlines functions")
     {
         std::wstring str = LR"(class A

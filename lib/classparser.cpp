@@ -141,6 +141,27 @@ namespace
         return Visibility::Private;
     }
 
+    /**
+     * @brief look for the given keyword, and removes it if found.
+     * @return true if found and removed
+     */
+    bool findAndRemoveKeyword(std::vector<std::wstring>& lines, const std::wstring& keyword)
+    {
+        const auto it = std::find(begin(lines), end(lines), keyword);
+        if(it == end(lines)) return false;
+        lines.erase(it);
+        return true;
+    }
+
+    std::wstring removeInBetween(std::wstring line, wchar_t begin_token, wchar_t end_token)
+    {
+        const auto it_begin = std::find(begin(line), end(line), begin_token);
+        auto it_end = std::find(begin(line), end(line), end_token);
+        if(it_end != end(line)) std::advance(it_end, 1);
+        if(it_begin != end(line) && it_end != end(line)) line.erase(it_begin, it_end);
+        return line;
+    }
+
 } // namespace
 
 ClassFiles::ClassFiles(File header_file_, std::optional<File> source_file_)
@@ -300,23 +321,16 @@ std::optional<MemberVariable> ClassParser::parseMemberVariable(std::wstring line
     return MemberVariable{m_current_visibility, parts[0], parts[1], is_reference, is_const};
 }
 
-std::optional<MemberFunction> ClassParser::parseMemberFunction(const std::wstring& line) const
+std::optional<MemberFunction> ClassParser::parseMemberFunction(std::wstring line) const
 {
     bool is_virtual = false;
     const auto is_const = Utils::Strings::endsWith(line, L" const;") || Utils::Strings::endsWith(line, L" const = 0;");
-    auto parts = Utils::Strings::split(line, L'(');
-    if(parts.size() != 2)
-    {
-        std::wcerr << L"can't parse member function " << line << " : " << parts.size() << std::endl;
-        return std::nullopt;
-    }
-    parts = Utils::Strings::split(parts[0], L' ');
+    line = removeInBetween(std::move(line), L'(', L')');
+    if(Utils::Strings::endsWith(line, L";")) line.pop_back();
+    auto parts = Utils::Strings::split(line, L' ');
     if(!parts.empty() && parts[0] == L"[[nodiscard]]") parts.erase(begin(parts));
-    if(!parts.empty() && parts[0] == L"virtual")
-    {
-        parts.erase(begin(parts));
-        is_virtual = true;
-    }
+    if(findAndRemoveKeyword(parts, L"virtual")) is_virtual = true;
+    if(findAndRemoveKeyword(parts, L"override")) is_virtual = true;
     if(parts.size() != 2)
     {
         std::wcerr << L"can't parse member function " << line << " : " << parts.size() << std::endl;

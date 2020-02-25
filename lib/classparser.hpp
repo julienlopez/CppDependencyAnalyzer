@@ -39,7 +39,7 @@ private:
 
     std::optional<MemberVariable> parseMemberVariable(std::wstring line) const;
 
-    std::optional<MemberFunction> parseMemberFunction(const std::wstring& line) const;
+    std::optional<MemberFunction> parseMemberFunction(std::wstring line) const;
 
     std::vector<Inheritance> findInheritances(std::wstring class_declaration_line) const;
 };
