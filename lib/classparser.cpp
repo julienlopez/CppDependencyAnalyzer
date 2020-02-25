@@ -301,23 +301,29 @@ std::optional<MemberVariable> ClassParser::parseMemberVariable(std::wstring line
 
 std::optional<MemberFunction> ClassParser::parseMemberFunction(const std::wstring& line) const
 {
+    bool is_virtual = false;
     const auto is_const = Utils::Strings::endsWith(line, L" const;") || Utils::Strings::endsWith(line, L" const = 0;");
     auto parts = Utils::Strings::split(line, L'(');
     if(parts.size() != 2)
     {
-        std::wcerr << L"can't parse member function " << line << std::endl;
+        std::wcerr << L"can't parse member function " << line << " : " << parts.size() << std::endl;
         return std::nullopt;
     }
     parts = Utils::Strings::split(parts[0], L' ');
     if(!parts.empty() && parts[0] == L"[[nodiscard]]") parts.erase(begin(parts));
+    if(!parts.empty() && parts[0] == L"virtual")
+    {
+        parts.erase(begin(parts));
+        is_virtual = true;
+    }
     if(parts.size() != 2)
     {
-        std::wcerr << L"can't parse member function " << line << std::endl;
+        std::wcerr << L"can't parse member function " << line << " : " << parts.size() << std::endl;
         return std::nullopt;
     }
     for(auto& p : parts)
         p = Utils::Strings::trim(p);
-    return MemberFunction{m_current_visibility, parts[1], is_const};
+    return MemberFunction{m_current_visibility, parts[1], is_const, is_virtual};
 }
 
 std::vector<Inheritance> ClassParser::findInheritances(std::wstring class_declaration_line) const

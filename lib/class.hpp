@@ -28,6 +28,7 @@ struct MemberFunction
     // std::wstring return_type;
     std::wstring name;
     bool is_const;
+    bool is_virtual;
 };
 
 struct MemberVariable
