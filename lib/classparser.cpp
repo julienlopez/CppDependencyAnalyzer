@@ -323,14 +323,14 @@ std::optional<MemberVariable> ClassParser::parseMemberVariable(std::wstring line
 
 std::optional<MemberFunction> ClassParser::parseMemberFunction(std::wstring line) const
 {
-    bool is_virtual = false;
-    const auto is_const = Utils::Strings::endsWith(line, L" const;") || Utils::Strings::endsWith(line, L" const = 0;");
     line = removeInBetween(std::move(line), L'(', L')');
     if(Utils::Strings::endsWith(line, L";")) line.pop_back();
     auto parts = Utils::Strings::split(line, L' ');
     if(!parts.empty() && parts[0] == L"[[nodiscard]]") parts.erase(begin(parts));
+    bool is_virtual = false;
     if(findAndRemoveKeyword(parts, L"virtual")) is_virtual = true;
     if(findAndRemoveKeyword(parts, L"override")) is_virtual = true;
+    const auto is_const = findAndRemoveKeyword(parts, L"const");
     if(parts.size() != 2)
     {
         std::wcerr << L"can't parse member function " << line << " : " << parts.size() << std::endl;
