@@ -329,4 +329,16 @@ TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
         REQUIRE(res.header_content.functions.size() == 1);
         CHECK(res.header_content.functions.front().name == L"run");
     }
+
+    SECTION("parsing a function returning a const type")
+    {
+        std::wstring str = LR"(class A
+                            {
+                                const std::string& run(int i) const;
+                            }; )";
+        Cda::File header{L"file.hpp", L"file.hpp", linesFromString(str)};
+        const auto res = Cda::ClassParser().parseClass(header);
+        REQUIRE(res.header_content.functions.size() == 1);
+        CHECK(res.header_content.functions.front().name == L"run");
+    }
 }

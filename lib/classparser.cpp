@@ -162,9 +162,14 @@ namespace
         return line;
     }
 
+    bool contains(const std::wstring& str, const std::wstring& token)
+    {
+        return str.find(token) != std::wstring::npos;
+    }
+
     void mergeSplitTypes(std::vector<std::wstring>& parts)
     {
-        while(parts.size() > 2 && parts.front().find(L'<') != std::wstring::npos)
+        while(parts.size() > 2 && ((contains(parts[0], L"<") && contains(parts[1], L">")) || parts.front() == L"const"))
         {
             parts[0] += parts[1];
             parts.erase(begin(parts) + 1);
@@ -339,8 +344,8 @@ std::optional<MemberFunction> ClassParser::parseMemberFunction(std::wstring line
     bool is_virtual = false;
     if(findAndRemoveKeyword(parts, L"virtual")) is_virtual = true;
     if(findAndRemoveKeyword(parts, L"override")) is_virtual = true;
-    const auto is_const = findAndRemoveKeyword(parts, L"const");
     mergeSplitTypes(parts);
+    const auto is_const = findAndRemoveKeyword(parts, L"const");
     if(parts.size() != 2)
     {
         std::wcerr << L"can't parse member function " << line << " : " << parts.size() << std::endl;
