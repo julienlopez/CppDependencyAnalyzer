@@ -249,7 +249,10 @@ TEST_CASE("Basic uses of ClassParser", "[ClassParser]")
         CHECK(res.header_content.inheritances.back().type == L"C");
         CHECK(res.header_content.inheritances.back().visibility == Cda::Visibility::Private);
     }
+}
 
+TEST_CASE("Function parsing of ClassParser", "[ClassParser]")
+{
     SECTION("Class parsing with a simple virtual function")
     {
         std::wstring str = LR"(class A
