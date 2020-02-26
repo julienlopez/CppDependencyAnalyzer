@@ -27,6 +27,7 @@ public:
 private:
     Parameters m_parameters;
     Visibility m_current_visibility = Visibility::Private;
+    std::wstring m_current_namespace;
 
     static std::vector<ClassFiles> bunchFilesByClasses(std::vector<File> files);
 
@@ -42,6 +43,8 @@ private:
     std::optional<MemberFunction> parseMemberFunction(std::wstring line) const;
 
     std::vector<Inheritance> findInheritances(std::wstring class_declaration_line) const;
+
+    void parseNamespaces(File::LineContainer_t lines);
 };
 
 } // namespace Cda

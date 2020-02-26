@@ -108,9 +108,9 @@ namespace
 
     void cleanupHeaderFile(File::LineContainer_t& lines)
     {
-        removeForwardDeclarations(lines);
+        // removeForwardDeclarations(lines);
         removePreprocessorLines(lines);
-        removeEmptyNamespaces(lines);
+        // removeEmptyNamespaces(lines);
         removeDocComments(lines);
         removeBasicComments(lines);
         mergeSplitLines(lines);
@@ -247,7 +247,8 @@ ClassParser::findClassesBoundariesAndName(const File::LineContainer_t& lines)
     const auto it_end
         = std::find_if(it_begin, end(lines), [](const File::Line& line) { return line.content == L"};"; });
     if(it_end == end(lines)) throw std::runtime_error("unable to find the end of the class");
-    return {cleanupClassName(std::move(name)), inheritances, it_begin, it_end};
+    parseNamespaces({begin(lines), it_begin});
+    return {m_current_namespace + cleanupClassName(std::move(name)), inheritances, it_begin, it_end};
 }
 
 std::vector<ClassFiles> ClassParser::bunchFilesByClasses(std::vector<File> files)
@@ -388,6 +389,18 @@ std::vector<Inheritance> ClassParser::findInheritances(std::wstring class_declar
         }
     }
     return res;
+}
+
+void ClassParser::parseNamespaces(File::LineContainer_t lines)
+{
+    for(auto it = begin(lines); it != end(lines); ++it)
+    {
+        const auto line = Utils::Strings::trim(it->content);
+        if(Utils::Strings::startsWith(line, L"namespace "))
+        {
+            m_current_namespace += line.substr(10) + L"::";
+        }
+    }
 }
 
 } // namespace Cda
