@@ -216,6 +216,7 @@ std::optional<Class> ClassParser::parseClass(ClassFiles files)
         auto[name, inheritances, it_begin, it_end] = findClassesBoundariesAndName(files.header_file.m_lines);
         auto content = parseHeaderContent(name, it_begin, it_end);
         content.inheritances = std::move(inheritances);
+        m_current_namespace.clear();
         return Class{std::move(name), std::move(files), std::move(content)};
     }
     catch(const std::exception& err)
@@ -223,6 +224,7 @@ std::optional<Class> ClassParser::parseClass(ClassFiles files)
         std::wcerr << "exception thrown for : " << files.header_file.fileName() << std::endl;
         std::wcerr << Utils::Strings::convert(err.what()) << std::endl;
     }
+    m_current_namespace.clear();
     return std::nullopt;
 }
 
