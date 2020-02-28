@@ -84,3 +84,24 @@ TEST_CASE("Parsing of classes inside namespaces", "[ClassParser]")
         CHECK(res2->name == L"N2::B"s);
     }
 }
+
+TEST_CASE("Figuring out the full type of a variable member inside namespaces", "[ClassParser]")
+{
+
+    SECTION("same namespace namespace")
+    {
+        std::wstring str = LR"(
+                            namespace N1
+                            {
+                            class A
+                            {
+                                B m_b;
+                            };
+                            } )";
+        Cda::File header{L"a.hpp", L"a.hpp", linesFromString(str)};
+        auto res = Cda::ClassParser().parseClass(header);
+        REQUIRE(res);
+        CHECK(res->header_content.variables.size() == 1);
+        CHECK(res->header_content.variables.front().type == L"N1::B"s);
+    }
+}
