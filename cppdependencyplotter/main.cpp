@@ -39,8 +39,17 @@ std::vector<Cda::File> loadFiles(const std::filesystem::path& directory)
     std::vector<Cda::File> res;
     for(std::filesystem::directory_iterator it{directory}; it != std::filesystem::directory_iterator{}; ++it)
     {
-        const auto filename = cleanRootFromFileName(directory.wstring(), it->path().wstring());
-        res.push_back(Cda::File::readFromFileSystem(filename, *it));
+        if(std::filesystem::is_directory(*it))
+        {
+            auto sub_res = loadFiles(*it);
+            std::copy(std::make_move_iterator(begin(sub_res)), std::make_move_iterator(end(sub_res)),
+                      std::back_inserter(res));
+        }
+        else
+        {
+            const auto filename = cleanRootFromFileName(directory.wstring(), it->path().wstring());
+            res.push_back(Cda::File::readFromFileSystem(filename, *it));
+        }
     }
     return res;
 }
